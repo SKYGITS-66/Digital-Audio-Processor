@@ -25,34 +25,55 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; user-select: none; }
         body { background: var(--bg-dark); color: var(--text-main); padding: 12px; }
 
-        .app-title { text-align: center; margin-bottom: 12px; color: var(--accent-blue); font-size: 1.3rem; letter-spacing: 1.5px; font-weight: 800; text-transform: uppercase; }
+        .app-title { text-align: center; margin-bottom: 6px; color: var(--accent-blue); font-size: 1.3rem; letter-spacing: 1.5px; font-weight: 800; text-transform: uppercase; }
 
-        /* Animasi Pelangi & Neon Running LED */
+        .active-modules-panel {
+            background: #12131c;
+            border: 1px dashed var(--accent-blue);
+            border-radius: 6px;
+            padding: 8px 12px;
+            max-width: 1750px;
+            margin: 0 auto 12px auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .active-modules-title {
+            font-size: 0.68rem;
+            font-weight: bold;
+            color: var(--accent-yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .active-badge-container {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+        .mod-badge {
+            background: #1e2030;
+            color: var(--accent-green);
+            border: 1px solid rgba(166, 227, 161, 0.3);
+            font-size: 0.62rem;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .mod-badge.empty {
+            color: #6c7086;
+            border-color: var(--border);
+            background: #0a0b10;
+        }
+
         @keyframes rainbowGlow {
-            0% {
-                color: #f38ba8;
-                text-shadow: 0 0 10px #f38ba8, 0 0 20px #f38ba8, 0 0 30px #f38ba8;
-            }
-            20% {
-                color: #fab387;
-                text-shadow: 0 0 10px #fab387, 0 0 20px #fab387, 0 0 30px #fab387;
-            }
-            40% {
-                color: #f9e2af;
-                text-shadow: 0 0 10px #f9e2af, 0 0 20px #f9e2af, 0 0 30px #f9e2af;
-            }
-            60% {
-                color: #a6e3a1;
-                text-shadow: 0 0 10px #a6e3a1, 0 0 20px #a6e3a1, 0 0 30px #a6e3a1;
-            }
-            80% {
-                color: #89dceb;
-                text-shadow: 0 0 10px #89dceb, 0 0 20px #89dceb, 0 0 30px #89dceb;
-            }
-            100% {
-                color: #cba6f7;
-                text-shadow: 0 0 10px #cba6f7, 0 0 20px #cba6f7, 0 0 30px #cba6f7;
-            }
+            0% { color: #f38ba8; text-shadow: 0 0 10px #f38ba8, 0 0 20px #f38ba8; }
+            50% { color: #89dceb; text-shadow: 0 0 10px #89dceb, 0 0 20px #89dceb; }
+            100% { color: #f38ba8; text-shadow: 0 0 10px #f38ba8, 0 0 20px #f38ba8; }
         }
 
         @keyframes floatUpDown {
@@ -165,12 +186,15 @@
         .playlist-item:hover { background: #1f2233; }
         .playlist-item.playing { background: var(--accent-blue); color: #111; font-weight: bold; }
 
-        .graph-vu-container { display: grid; grid-template-columns: 1fr 60px; gap: 10px; height: 260px; }
-        @media (max-width: 650px) { .graph-vu-container { grid-template-columns: 1fr; height: auto; } }
-        .canvas-container { height: 100%; min-height: 160px; background: #06070a; border-radius: 6px; overflow: hidden; position: relative; border: 1px solid var(--border); }
-        canvas { width: 100%; height: 100%; }
+        /* Perbaikan Kontainer Grafik dan Ukuran Canvas agar Terkunci di HP */
+        .graph-vu-container { display: grid; grid-template-columns: 1fr 60px; gap: 10px; height: 220px; max-height: 220px; }
+        @media (max-width: 650px) { 
+            .graph-vu-container { grid-template-columns: 1fr; height: 200px; max-height: 200px; } 
+        }
+        .canvas-container { height: 100%; min-height: 140px; max-height: 220px; background: #06070a; border-radius: 6px; overflow: hidden; position: relative; border: 1px solid var(--border); }
+        canvas { width: 100%; height: 100%; display: block; }
 
-        .main-vu-panel { display: flex; justify-content: space-around; align-items: center; background: #06070a; border: 1px solid var(--border); border-radius: 6px; padding: 6px 4px; }
+        .main-vu-panel { display: flex; justify-content: space-around; align-items: center; background: #06070a; border: 1px solid var(--border); border-radius: 6px; padding: 6px 4px; height: 100%; }
         .vu-channel-group { display: flex; flex-direction: column; align-items: center; height: 100%; gap: 2px; }
         .vu-channel-label { font-size: 0.6rem; font-weight: bold; color: var(--accent-blue); }
 
@@ -178,18 +202,18 @@
         @media (max-width: 1200px) { .mid-console-container { grid-template-columns: 1fr; } }
         
         .fader-console-wrapper { display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
-        .fader-console-grid { display: flex; gap: 6px; justify-content: space-between; }
-        .v-fader-strip { display: flex; flex-direction: column; align-items: center; background: #181926; padding: 8px 4px; border-radius: 6px; border: 1px solid #282a3d; flex: 1; }
+        .fader-console-grid { display: flex; gap: 6px; justify-content: space-between; overflow-x: auto; padding-bottom: 4px; }
+        .v-fader-strip { display: flex; flex-direction: column; align-items: center; background: #181926; padding: 8px 4px; border-radius: 6px; border: 1px solid #282a3d; flex: 1; min-width: 75px; }
         .v-fader-title { font-size: 0.6rem; font-weight: bold; color: #a6adc8; text-transform: uppercase; text-align: center; height: 22px; display: flex; align-items: center; }
         .v-fader-val { font-size: 0.62rem; font-weight: bold; color: var(--accent-yellow); margin-bottom: 6px; background: #08090c; padding: 2px 2px; border-radius: 3px; border: 1px solid #1f202e; width: 100%; text-align: center; }
         
         .fader-and-vu { display: flex; gap: 3px; align-items: center; justify-content: center; }
         
-        .v-slider-wrapper { height: 202px; width: 22px; display: flex; justify-content: center; align-items: center; position: relative; background: var(--fader-bg); border-radius: 4px; border: 1px solid #202130; touch-action: none; overflow: hidden; }
-        .v-slider-wrapper::before { content: ''; position: absolute; width: 4px; height: 175px; background: #202130; border-radius: 2px; }
+        .v-slider-wrapper { height: 180px; width: 22px; display: flex; justify-content: center; align-items: center; position: relative; background: var(--fader-bg); border-radius: 4px; border: 1px solid #202130; touch-action: none; overflow: hidden; }
+        .v-slider-wrapper::before { content: ''; position: absolute; width: 4px; height: 155px; background: #202130; border-radius: 2px; }
 
         input[type="range"].v-slider {
-            -webkit-appearance: none; appearance: none; width: 180px; height: 22px; background: transparent; transform: rotate(-90deg); transform-origin: center; cursor: pointer; outline: none; touch-action: none; position: absolute;
+            -webkit-appearance: none; appearance: none; width: 160px; height: 22px; background: transparent; transform: rotate(-90deg); transform-origin: center; cursor: pointer; outline: none; touch-action: none; position: absolute;
         }
         input[type="range"].v-slider::-webkit-slider-thumb {
             -webkit-appearance: none; appearance: none; width: 16px; height: 24px; background: linear-gradient(180deg, #7f849c 0%, #313244 50%, #11111b 100%); border: 1px solid var(--text-main); border-radius: 3px; box-shadow: 0 2px 6px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.4);
@@ -214,7 +238,7 @@
         .knob { width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #52556b, #1a1b26); border: 2px solid #36384e; position: relative; cursor: ns-resize; touch-action: none; box-shadow: 0 3px 6px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.2); z-index: 2; }
         .knob-pointer { width: 3px; height: 9px; background: var(--accent-pink); position: absolute; top: 2px; left: calc(50% - 1.5px); border-radius: 2px; transform-origin: bottom center; box-shadow: 0 0 4px var(--accent-pink); }
 
-        .vu-meter-wrapper { display: flex; gap: 2px; height: 202px; background: #06070a; padding: 3px; border-radius: 4px; border: 1px solid #1f202e; }
+        .vu-meter-wrapper { display: flex; gap: 2px; height: 180px; background: #06070a; padding: 3px; border-radius: 4px; border: 1px solid #1f202e; }
         .vu-led-bar { width: 5px; height: 100%; display: flex; flex-direction: column-reverse; gap: 2px; position: relative; }
         .vu-led { width: 100%; flex: 1; border-radius: 1px; background: #181924; transition: background 0.03s ease; }
         .vu-led.green.on { background: #a6e3a1; box-shadow: 0 0 4px #a6e3a1; }
@@ -275,6 +299,13 @@
 </div>
 
 <h2 class="app-title">🔊 SKY PRO AUDIO MINIATUR - DIGITAL AUDIO PROCESSOR</h2>
+
+<div class="active-modules-panel">
+    <div class="active-modules-title">⚡ Modul Aktif:</div>
+    <div class="active-badge-container" id="active-modules-container">
+        <div class="mod-badge empty">Tidak ada modul tambahan yang aktif</div>
+    </div>
+</div>
 
 <div class="main-layout" id="main-console-layout">
     
@@ -411,11 +442,11 @@
                 <div class="main-vu-panel">
                     <div class="vu-channel-group">
                         <div class="vu-channel-label">L</div>
-                        <div class="vu-meter-wrapper" style="height: 202px;"><div class="vu-led-bar" id="main-vu-l"><div class="vu-peak-dot" id="peak-main-vu-l"></div></div></div>
+                        <div class="vu-meter-wrapper"><div class="vu-led-bar" id="main-vu-l"><div class="vu-peak-dot" id="peak-main-vu-l"></div></div></div>
                     </div>
                     <div class="vu-channel-group">
                         <div class="vu-channel-label">R</div>
-                        <div class="vu-meter-wrapper" style="height: 202px;"><div class="vu-led-bar" id="main-vu-r"><div class="vu-peak-dot" id="peak-main-vu-r"></div></div></div>
+                        <div class="vu-meter-wrapper"><div class="vu-led-bar" id="main-vu-r"><div class="vu-peak-dot" id="peak-main-vu-r"></div></div></div>
                     </div>
                 </div>
             </div>
@@ -1059,6 +1090,39 @@
 
     let mutes = { ch1: false, mic: false, file: false, mefek: false, mmixer: false };
 
+    function updateActiveModulesUI() {
+        const container = document.getElementById('active-modules-container');
+        let activeItems = [];
+
+        if (states.input) activeItems.push("System Input");
+        if (states.agc) activeItems.push("AGC Active");
+        if (states.limiter) activeItems.push("Master Limiter");
+        if (states.dsp) activeItems.push("99 DSP Processor");
+        if (states.dlms) activeItems.push("DLMS Crossover");
+        if (states.eq31) activeItems.push("Graphic EQ 31-Band");
+        if (states.nyesss) activeItems.push("Efek Nyesss");
+        if (states.feedback) activeItems.push("FB Notch");
+        if (states.autoFeedback) activeItems.push("Auto Feedback");
+        if (states.dynamicEq) activeItems.push("Dynamic EQ");
+        if (states.loop) activeItems.push("Loop On");
+        if (states.graph) activeItems.push("Grafik RTA");
+        if (isMicActive) activeItems.push("Live Mic");
+        if (isTabAudioActive) activeItems.push("Tab Audio Capture");
+        if (activeNoiseType) activeItems.push(`Soundcheck (${activeNoiseType.toUpperCase()} Noise)`);
+
+        container.innerHTML = '';
+        if (activeItems.length === 0) {
+            container.innerHTML = '<div class="mod-badge empty">Tidak ada modul tambahan yang aktif</div>';
+        } else {
+            activeItems.forEach(item => {
+                const badge = document.createElement('div');
+                badge.className = 'mod-badge';
+                badge.innerHTML = `🟢 ${item}`;
+                container.appendChild(badge);
+            });
+        }
+    }
+
     function resetAudioContextClean() {
         if (ctx) {
             try { ctx.close(); } catch(e){}
@@ -1366,6 +1430,7 @@
             statusText.style.color = "var(--accent-red)";
             ytPlaceholder.style.display = "block";
             ytPlaceholder.innerText = "Menampilkan Video dari Sumber Tab / File Aktif...";
+            updateActiveModulesUI();
             return;
         }
 
@@ -1413,6 +1478,7 @@
 
         ytPlaceholder.style.display = "block";
         ytPlaceholder.innerText = `Menghasilkan Sinyal Pengujian: ${type.toUpperCase()} NOISE`;
+        updateActiveModulesUI();
     }
 
     document.getElementById('btn-pink-noise').onclick = () => toggleNoiseGenerator('pink');
@@ -1521,6 +1587,7 @@
                 isTabAudioActive = true;
                 this.classList.add('active');
                 this.innerText = "🛑 HENTIKAN TANGKAPAN TAB";
+                updateActiveModulesUI();
             } catch (err) {
                 console.warn("Penangkapan Tab Dibatalkan:", err);
             }
@@ -1548,6 +1615,7 @@
         const btn = document.getElementById('btn-toggle-tab-audio');
         btn.classList.remove('active');
         btn.innerText = "🖥️ TANGKAP TAB & VIDEO";
+        updateActiveModulesUI();
     }
 
     document.getElementById('btn-toggle-mic').onclick = async function() {
@@ -1578,6 +1646,7 @@
                 isMicActive = true; 
                 this.classList.add('active'); 
                 this.innerText = "🛑 MATIKAN LIVE MIC";
+                updateActiveModulesUI();
             } catch (err) { alert("Gagal mengaktifkan peranti input fisik!"); }
         } else {
             if (micStream) micStream.getTracks().forEach(track => track.stop());
@@ -1585,6 +1654,7 @@
             isMicActive = false; 
             this.classList.remove('active'); 
             this.innerText = "🔴 LIVE MIC INPUT";
+            updateActiveModulesUI();
         }
     };
 
@@ -1995,6 +2065,7 @@
 
         mediaEl.loop = states.loop;
         document.getElementById('graph-legend').style.display = states.graph ? 'flex' : 'none';
+        updateActiveModulesUI();
     }
 
     const toggleModule = (modName, btnId) => {
@@ -2036,6 +2107,7 @@
         }
 
         if (ctx && ctx.state === 'running') updateModuleStates();
+        updateActiveModulesUI();
     };
 
     const swInputBtn = document.getElementById('sw-input');
@@ -2496,6 +2568,7 @@
         }
     }
     drawAnalyzer();
+    updateActiveModulesUI();
 </script>
 </body>
 </html>
