@@ -1,0 +1,2501 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sky Pro Audio Miniatur - Digital Audio Processor</title>
+    <style>
+        :root {
+            --bg-dark: #0d0e12;
+            --panel-bg: #161722;
+            --subpanel-bg: #11121a;
+            --fader-bg: #08090c;
+            --text-main: #cdd6f4;
+            --accent-blue: #89b4fa;
+            --accent-green: #a6e3a1;
+            --accent-yellow: #f9e2af;
+            --accent-red: #f38ba8;
+            --accent-pink: #f5c2e7;
+            --accent-orange: #fab387;
+            --accent-purple: #cba6f7;
+            --accent-cyan: #89dceb;
+            --border: #282a3d;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; user-select: none; }
+        body { background: var(--bg-dark); color: var(--text-main); padding: 12px; }
+
+        .app-title { text-align: center; margin-bottom: 12px; color: var(--accent-blue); font-size: 1.3rem; letter-spacing: 1.5px; font-weight: 800; text-transform: uppercase; }
+
+        /* Animasi Pelangi & Neon Running LED */
+        @keyframes rainbowGlow {
+            0% {
+                color: #f38ba8;
+                text-shadow: 0 0 10px #f38ba8, 0 0 20px #f38ba8, 0 0 30px #f38ba8;
+            }
+            20% {
+                color: #fab387;
+                text-shadow: 0 0 10px #fab387, 0 0 20px #fab387, 0 0 30px #fab387;
+            }
+            40% {
+                color: #f9e2af;
+                text-shadow: 0 0 10px #f9e2af, 0 0 20px #f9e2af, 0 0 30px #f9e2af;
+            }
+            60% {
+                color: #a6e3a1;
+                text-shadow: 0 0 10px #a6e3a1, 0 0 20px #a6e3a1, 0 0 30px #a6e3a1;
+            }
+            80% {
+                color: #89dceb;
+                text-shadow: 0 0 10px #89dceb, 0 0 20px #89dceb, 0 0 30px #89dceb;
+            }
+            100% {
+                color: #cba6f7;
+                text-shadow: 0 0 10px #cba6f7, 0 0 20px #cba6f7, 0 0 30px #cba6f7;
+            }
+        }
+
+        @keyframes floatUpDown {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-6px) scale(1.02); }
+        }
+
+        .loading-title-container {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: floatUpDown 2.5s ease-in-out infinite;
+            padding: 0 20px;
+        }
+
+        .loading-main-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            animation: rainbowGlow 4s linear infinite;
+            margin-bottom: 8px;
+        }
+
+        .loading-sub-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--accent-pink);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-shadow: 0 0 8px rgba(245, 194, 231, 0.6);
+        }
+
+        .main-layout { display: grid; grid-template-columns: 320px 1fr; gap: 12px; max-width: 1750px; margin: 0 auto; transition: opacity 0.3s ease; }
+        @media (max-width: 1100px) { .main-layout { grid-template-columns: 1fr; } }
+
+        .left-column, .right-column { display: flex; flex-direction: column; gap: 10px; }
+
+        .panel { background: var(--panel-bg); border: 2px solid var(--border); border-radius: 8px; padding: 12px; position: relative; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .module-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 6px; flex-wrap: wrap; gap: 6px; }
+        .module-title { font-size: 0.8rem; font-weight: bold; color: var(--accent-yellow); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .switch-btn { background: #222436; color: var(--text-main); border: 1px solid var(--border); padding: 5px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
+        .switch-btn.active { background: var(--accent-green); color: #111; border-color: var(--accent-green); }
+        .switch-btn.fullscreen-btn { background: var(--accent-blue); color: #111; border-color: var(--accent-blue); font-weight: 800; }
+        .switch-btn.nyesss-active { background: var(--accent-pink); color: #111; border-color: var(--accent-pink); }
+        .switch-btn.fb-active { background: var(--accent-orange); color: #111; border-color: var(--accent-orange); }
+        .switch-btn.loop-active { background: var(--accent-yellow); color: #111; border-color: var(--accent-yellow); }
+        .switch-btn.graph-active { background: var(--accent-blue); color: #111; border-color: var(--accent-blue); }
+        .switch-btn.eq31-active { background: var(--accent-purple); color: #111; border-color: var(--accent-purple); }
+        .switch-btn.dyn-active { background: var(--accent-cyan); color: #111; border-color: var(--accent-cyan); }
+        .switch-btn.auto-fb-active { background: var(--accent-red); color: #111; border-color: var(--accent-red); }
+        .switch-btn.limiter-active { background: var(--accent-red); color: #111; border-color: var(--accent-red); }
+        .switch-btn.noise-on { background: var(--accent-cyan); color: #111; border-color: var(--accent-cyan); box-shadow: 0 0 8px rgba(137, 220, 235, 0.5); }
+        .switch-btn.mini-sw { font-size: 0.6rem; padding: 2px 6px; border-radius: 10px; }
+        
+        .led-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-red); display: inline-block; }
+        .switch-btn.active .led-dot, .switch-btn.fullscreen-btn .led-dot, .switch-btn.nyesss-active .led-dot, .switch-btn.fb-active .led-dot, .switch-btn.loop-active .led-dot, .switch-btn.graph-active .led-dot, .switch-btn.eq31-active .led-dot, .switch-btn.dyn-active .led-dot, .switch-btn.auto-fb-active .led-dot, .switch-btn.limiter-active .led-dot, .switch-btn.noise-on .led-dot { background: #111; }
+
+        .btn { background: #222436; color: var(--text-main); border: none; padding: 7px 10px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.75rem; width: 100%; margin-top: 4px; transition: 0.2s; }
+        .btn:hover { background: var(--accent-blue); color: #111; }
+        .btn-start { background: var(--accent-green); color: #111; font-size: 0.85rem; padding: 10px; }
+        .btn-start.active { background: #36384f; color: #fff; }
+        .btn-mute { background: #1a1b26; border: 1px solid var(--border); color: #89b4fa; }
+        .btn-mute.active { background: var(--accent-red); color: #111; border-color: var(--accent-red); font-weight: bold; }
+
+        .dlms-action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 4px; }
+        .btn-dlms-solo { background: #222436; border: 1px solid var(--border); font-size: 0.58rem; padding: 3px; font-weight: bold; }
+        .btn-dlms-mute { background: #222436; border: 1px solid var(--border); font-size: 0.58rem; padding: 3px; font-weight: bold; }
+        
+        .dlms-subcard-sub .btn-dlms-solo { color: #38bdf8; }
+        .dlms-subcard-sub .btn-dlms-solo.active { background: #38bdf8; color: #111; border-color: #38bdf8; }
+        .dlms-subcard-sub .btn-dlms-mute { color: #f87171; }
+        .dlms-subcard-sub .btn-dlms-mute.active { background: #f87171; color: #111; border-color: #f87171; }
+
+        .dlms-subcard-low .btn-dlms-solo { color: #fb923c; }
+        .dlms-subcard-low .btn-dlms-solo.active { background: #fb923c; color: #111; border-color: #fb923c; }
+        .dlms-subcard-low .btn-dlms-mute { color: #f87171; }
+        .dlms-subcard-low .btn-dlms-mute.active { background: #f87171; color: #111; border-color: #f87171; }
+
+        .dlms-subcard-mid .btn-dlms-solo { color: #4ade80; }
+        .dlms-subcard-mid .btn-dlms-solo.active { background: #4ade80; color: #111; border-color: #4ade80; }
+        .dlms-subcard-mid .btn-dlms-mute { color: #f87171; }
+        .dlms-subcard-mid .btn-dlms-mute.active { background: #f87171; color: #111; border-color: #f87171; }
+
+        .dlms-subcard-high .btn-dlms-solo { color: #f472b6; }
+        .dlms-subcard-high .btn-dlms-solo.active { background: #f472b6; color: #111; border-color: #f472b6; }
+        .dlms-subcard-high .btn-dlms-mute { color: #f87171; }
+        .dlms-subcard-high .btn-dlms-mute.active { background: #f87171; color: #111; border-color: #f87171; }
+
+        .btn-fx-route { background: #1a1b26; border: 1px solid var(--border); color: #a6adc8; font-size: 0.55rem; padding: 3px 2px; }
+        .btn-fx-route.active { background: var(--accent-pink); color: #111; border-color: var(--accent-pink); font-weight: bold; }
+
+        .btn-mic { background: #2b2d42; border: 1px solid var(--accent-red); color: #fff; }
+        .btn-mic.active { background: var(--accent-red); color: #111; font-weight: bold; }
+        .btn-tab-audio { background: #1e3a8a; border: 1px solid var(--accent-blue); color: #fff; cursor: pointer; }
+        .btn-tab-audio.active { background: var(--accent-blue); color: #111; font-weight: bold; }
+
+        .mini-yt-container { width: 100%; height: 160px; background: #000; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); margin-top: 4px; position: relative; display: flex; align-items: center; justify-content: center; }
+        .mini-yt-container video { width: 100%; height: 100%; object-fit: contain; transform-origin: center center; transition: transform 0.1s; }
+        .mini-yt-placeholder { font-size: 0.68rem; color: #6c7086; text-align: center; padding: 10px; position: absolute; }
+
+        .vid-zoom-controls { display: none; background: #0b0c12; padding: 8px; border-radius: 4px; border: 1px solid var(--border); margin-top: 6px; }
+        .vid-zoom-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+        .vid-zoom-label { font-size: 0.65rem; color: var(--text-main); font-weight: bold; width: 45px; }
+        .vid-range { flex: 1; height: 4px; -webkit-appearance: none; appearance: none; background: #222436; border-radius: 2px; outline: none; }
+        .vid-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; background: var(--accent-blue); border-radius: 50%; cursor: pointer; }
+
+        .playlist-box { max-height: 120px; overflow-y: auto; background: #0b0c12; border: 1px solid var(--border); border-radius: 4px; margin-top: 4px; padding: 4px; }
+        .playlist-item { font-size: 0.7rem; padding: 5px 8px; border-bottom: 1px solid #1a1b26; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 3px; }
+        .playlist-item:hover { background: #1f2233; }
+        .playlist-item.playing { background: var(--accent-blue); color: #111; font-weight: bold; }
+
+        .graph-vu-container { display: grid; grid-template-columns: 1fr 60px; gap: 10px; height: 260px; }
+        @media (max-width: 650px) { .graph-vu-container { grid-template-columns: 1fr; height: auto; } }
+        .canvas-container { height: 100%; min-height: 160px; background: #06070a; border-radius: 6px; overflow: hidden; position: relative; border: 1px solid var(--border); }
+        canvas { width: 100%; height: 100%; }
+
+        .main-vu-panel { display: flex; justify-content: space-around; align-items: center; background: #06070a; border: 1px solid var(--border); border-radius: 6px; padding: 6px 4px; }
+        .vu-channel-group { display: flex; flex-direction: column; align-items: center; height: 100%; gap: 2px; }
+        .vu-channel-label { font-size: 0.6rem; font-weight: bold; color: var(--accent-blue); }
+
+        .mid-console-container { display: grid; grid-template-columns: 520px 1fr; gap: 12px; background: #12131c; padding: 12px; border-radius: 8px; border: 2px solid var(--border); align-items: stretch; }
+        @media (max-width: 1200px) { .mid-console-container { grid-template-columns: 1fr; } }
+        
+        .fader-console-wrapper { display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+        .fader-console-grid { display: flex; gap: 6px; justify-content: space-between; }
+        .v-fader-strip { display: flex; flex-direction: column; align-items: center; background: #181926; padding: 8px 4px; border-radius: 6px; border: 1px solid #282a3d; flex: 1; }
+        .v-fader-title { font-size: 0.6rem; font-weight: bold; color: #a6adc8; text-transform: uppercase; text-align: center; height: 22px; display: flex; align-items: center; }
+        .v-fader-val { font-size: 0.62rem; font-weight: bold; color: var(--accent-yellow); margin-bottom: 6px; background: #08090c; padding: 2px 2px; border-radius: 3px; border: 1px solid #1f202e; width: 100%; text-align: center; }
+        
+        .fader-and-vu { display: flex; gap: 3px; align-items: center; justify-content: center; }
+        
+        .v-slider-wrapper { height: 202px; width: 22px; display: flex; justify-content: center; align-items: center; position: relative; background: var(--fader-bg); border-radius: 4px; border: 1px solid #202130; touch-action: none; overflow: hidden; }
+        .v-slider-wrapper::before { content: ''; position: absolute; width: 4px; height: 175px; background: #202130; border-radius: 2px; }
+
+        input[type="range"].v-slider {
+            -webkit-appearance: none; appearance: none; width: 180px; height: 22px; background: transparent; transform: rotate(-90deg); transform-origin: center; cursor: pointer; outline: none; touch-action: none; position: absolute;
+        }
+        input[type="range"].v-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none; width: 16px; height: 24px; background: linear-gradient(180deg, #7f849c 0%, #313244 50%, #11111b 100%); border: 1px solid var(--text-main); border-radius: 3px; box-shadow: 0 2px 6px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.4);
+        }
+
+        .dlms-section-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 4px; }
+        @media (max-width: 1100px) { .dlms-section-grid { grid-template-columns: repeat(2, 1fr); } }
+        .dlms-subcard { background: var(--subpanel-bg); border: 1px solid #232435; border-radius: 6px; padding: 6px; display: flex; flex-direction: column; gap: 6px; position: relative; }
+        .dlms-card-title { font-size: 0.65rem; font-weight: bold; text-transform: uppercase; border-bottom: 1px dashed #2e3048; padding-bottom: 3px; text-align: center; }
+
+        .knob-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 6px; }
+        .knob-container { display: flex; flex-direction: column; align-items: center; gap: 2px; background: #0b0c12; padding: 5px 3px; border-radius: 4px; border: 1px solid #1c1d2b; }
+        .knob-label { font-size: 0.58rem; color: #a6adc8; font-weight: bold; text-align: center; height: 16px; display: flex; align-items: center; }
+        .knob-val { font-size: 0.6rem; color: var(--accent-yellow); font-weight: bold; background: #08090c; padding: 1px 3px; border-radius: 3px; border: 1px solid #1f202e; width: 100%; text-align: center; }
+        
+        .knob-wrapper { position: relative; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; }
+        .knob-svg-ring { position: absolute; top: 0; left: 0; width: 38px; height: 38px; transform: rotate(-90deg); pointer-events: none; }
+        .knob-svg-ring circle { fill: none; stroke-width: 3; stroke-linecap: round; }
+        .ring-bg { stroke: #222436; }
+        .ring-progress { stroke: var(--accent-blue); stroke-dasharray: 75.4; stroke-dashoffset: 75.4; }
+
+        .knob { width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #52556b, #1a1b26); border: 2px solid #36384e; position: relative; cursor: ns-resize; touch-action: none; box-shadow: 0 3px 6px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.2); z-index: 2; }
+        .knob-pointer { width: 3px; height: 9px; background: var(--accent-pink); position: absolute; top: 2px; left: calc(50% - 1.5px); border-radius: 2px; transform-origin: bottom center; box-shadow: 0 0 4px var(--accent-pink); }
+
+        .vu-meter-wrapper { display: flex; gap: 2px; height: 202px; background: #06070a; padding: 3px; border-radius: 4px; border: 1px solid #1f202e; }
+        .vu-led-bar { width: 5px; height: 100%; display: flex; flex-direction: column-reverse; gap: 2px; position: relative; }
+        .vu-led { width: 100%; flex: 1; border-radius: 1px; background: #181924; transition: background 0.03s ease; }
+        .vu-led.green.on { background: #a6e3a1; box-shadow: 0 0 4px #a6e3a1; }
+        .vu-led.yellow.on { background: #f9e2af; box-shadow: 0 0 4px #f9e2af; }
+        .vu-led.red.on { background: #f38ba8; box-shadow: 0 0 6px #f38ba8; }
+        
+        .vu-peak-dot { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: #fff; box-shadow: 0 0 8px #fff, 0 0 4px var(--accent-red); border-radius: 1px; opacity: 0; transition: top 0.15s ease-out; z-index: 3; }
+
+        .eq-container { display: flex; gap: 4px; overflow-x: auto; padding: 8px 4px; background: #0d0e14; border-radius: 6px; border: 1px solid #232435; justify-content: space-between; }
+        .eq-band { display: flex; flex-direction: column; align-items: center; width: 34px; min-width: 34px; background: #141520; padding: 6px 2px; border-radius: 4px; border: 1px solid #1f202e; }
+        .eq-freq-title { font-size: 0.5rem; font-weight: bold; color: var(--accent-purple); margin-bottom: 4px; text-align: center; }
+        
+        .eq-slider-and-vu { display: flex; gap: 3px; align-items: center; justify-content: center; }
+        .eq-slider-wrapper { height: 95px; width: 14px; display: flex; justify-content: center; align-items: center; position: relative; background: #08090c; border-radius: 3px; border: 1px solid #181924; }
+        .eq-slider-wrapper::before { content: ''; position: absolute; width: 2px; height: 80px; background: #202130; }
+
+        input[type="range"].eq-slider {
+            -webkit-appearance: none; appearance: none; width: 85px; height: 14px; background: transparent; transform: rotate(-90deg); cursor: pointer; outline: none;
+        }
+        input[type="range"].eq-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none; width: 10px; height: 16px; background: linear-gradient(180deg, #cba6f7 0%, #45475a 100%); border: 1px solid #fff; border-radius: 2px; box-shadow: 0 0 4px rgba(203, 166, 247, 0.6);
+        }
+        
+        .eq-vu-wrapper { width: 5px; height: 95px; background: #06070a; padding: 1px; border-radius: 2px; border: 1px solid #181924; display: flex; flex-direction: column-reverse; gap: 1.5px; }
+        .eq-vu-led { width: 100%; flex: 1; background: #181924; border-radius: 0.5px; }
+        .eq-vu-led.green.on { background: #a6e3a1; box-shadow: 0 0 2px #a6e3a1; }
+        .eq-vu-led.yellow.on { background: #f9e2af; box-shadow: 0 0 2px #f9e2af; }
+        .eq-vu-led.red.on { background: #f38ba8; box-shadow: 0 0 3px #f38ba8; }
+
+        .eq-val { font-size: 0.48rem; font-weight: bold; color: var(--accent-yellow); margin-top: 4px; text-align: center; width: 100%; }
+
+        .disabled-module { opacity: 0.35; pointer-events: none; filter: grayscale(0.5); }
+        .section-subtitle { font-size: 0.7rem; color: var(--accent-pink); font-weight: bold; margin-top: 6px; margin-bottom: 4px; border-bottom: 1px dashed var(--border); padding-bottom: 2px; text-transform: uppercase; }
+        
+        .input-select-style, .preset-select { background: #222436; color: var(--text-main); border: 1px solid var(--border); padding: 5px; border-radius: 4px; width: 100%; font-size: 0.75rem; margin-top: 4px; }
+        .preset-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin-top: 4px; }
+        
+        .graph-overlay-header { position: absolute; top: 6px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; z-index: 5; }
+        .graph-legend { display: flex; gap: 8px; font-size: 0.65rem; background: rgba(0,0,0,0.7); padding: 3px 6px; border-radius: 4px; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 4px; }
+        .legend-color { width: 10px; height: 3px; border-radius: 2px; }
+
+        .tuning-dsp-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+        @media (max-width: 850px) { .tuning-dsp-row { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div id="loading-screen" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #0d0e12; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.8s ease;">
+    <div class="loading-title-container">
+        <div class="loading-main-title">SKY PRO AUDIO</div>
+        <div class="loading-sub-title">Digital Audio Processor Miniatur</div>
+    </div>
+    <div style="color: var(--accent-yellow); font-weight: 800; font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase;" id="loading-text">MEMUAT SYSTEM...</div>
+    <div style="width: 320px; height: 6px; background: #222436; border-radius: 3px; margin-top: 18px; overflow: hidden; border: 1px solid var(--border);">
+        <div id="loading-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple)); transition: width 0.3s ease;"></div>
+    </div>
+</div>
+
+<h2 class="app-title">🔊 SKY PRO AUDIO MINIATUR - DIGITAL AUDIO PROCESSOR</h2>
+
+<div class="main-layout" id="main-console-layout">
+    
+    <div class="left-column">
+        <div style="display: flex; gap: 8px;">
+            <button class="switch-btn fullscreen-btn" id="btn-fullscreen" style="flex:1; padding: 10px; font-size: 0.75rem; justify-content: center;">
+                <span class="led-dot"></span> ⛶ FULLSCREEN
+            </button>
+        </div>
+
+        <div class="panel" style="border-color: var(--accent-blue);">
+            <div class="module-header">
+                <div class="module-title" style="color: var(--accent-blue);">📺 Mini Video / Tab Display</div>
+            </div>
+            <div class="mini-yt-container" id="mini-yt-wrapper">
+                <div class="mini-yt-placeholder" id="yt-placeholder">Menampilkan Video dari Sumber Tab / File Aktif...</div>
+                <video id="shared-video-preview" autoplay playsinline muted style="display: none;"></video>
+            </div>
+            
+            <div class="vid-zoom-controls" id="vid-zoom-controls">
+                <div style="font-size: 0.6rem; color: #a6adc8; margin-bottom: 8px; text-align: center;">✂️ Sesuaikan Ukuran untuk Menyembunyikan UI YouTube</div>
+                <div class="vid-zoom-row">
+                    <label class="vid-zoom-label">Zoom:</label>
+                    <input type="range" class="vid-range" id="video-zoom" min="1" max="3" step="0.05" value="1">
+                </div>
+                <div class="vid-zoom-row">
+                    <label class="vid-zoom-label">Geser X:</label>
+                    <input type="range" class="vid-range" id="video-x" min="-100" max="100" step="1" value="0">
+                </div>
+                <div class="vid-zoom-row" style="margin-bottom: 0;">
+                    <label class="vid-zoom-label">Geser Y:</label>
+                    <input type="range" class="vid-range" id="video-y" min="-100" max="100" step="1" value="0">
+                </div>
+                <button class="btn" onclick="resetVideoCrop()" style="font-size: 0.6rem; padding: 4px; margin-top: 8px; background: #232536;">RESET ZOOM</button>
+            </div>
+        </div>
+
+        <div class="panel" id="panel-input">
+            <div class="module-header">
+                <div class="module-title">System Input & Playlist</div>
+                <div style="display: flex; gap: 4px;">
+                    <button class="switch-btn mini-sw" id="sw-loop"><span class="led-dot"></span> 🔁 LOOP</button>
+                    <button class="switch-btn active mini-sw" id="sw-input"><span class="led-dot"></span> IN ON</button>
+                </div>
+            </div>
+            
+            <div id="subpanel-input-content">
+                <button class="btn btn-start" id="btn-start-engine">▶️ AKTIFKAN ENGINE</button>
+                
+                <div style="margin-top: 8px; border-top: 1px solid var(--border); padding-top: 6px;">
+                    <label style="color: var(--accent-red); font-weight: bold; font-size: 0.7rem;">🎙️ HARDWARE INPUT (LIVE MIC):</label>
+                    <select id="device-select" class="input-select-style">
+                        <option value="">-- Deteksi Input --</option>
+                    </select>
+                    <button class="btn btn-mic" id="btn-toggle-mic">🔴 LIVE MIC INPUT</button>
+                </div>
+
+                <div style="margin-top: 8px; border-top: 1px solid var(--border); padding-top: 6px;">
+                    <label style="color: var(--accent-blue); font-weight: bold; font-size: 0.7rem;">💻 AUDIO & VIDEO TAB (CHROME / YT):</label>
+                    <button class="btn btn-tab-audio" id="btn-toggle-tab-audio">🖥️ TANGKAP TAB & VIDEO</button>
+                </div>
+
+                <div style="margin-top: 8px; border-top: 1px solid var(--border); padding-top: 6px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <label style="color: var(--accent-yellow); font-weight: bold; font-size: 0.7rem;">📁 AUDIO PLAYLIST & FILE:</label>
+                        <button class="switch-btn mini-sw active" id="sw-agc" style="font-size: 0.55rem;"><span class="led-dot"></span> AGC: ON</button>
+                    </div>
+                    <input type="file" id="audio-file" accept="audio/*,video/*" multiple style="font-size: 0.7rem; color: #fff; width: 100%; margin-top: 2px;">
+                    <div class="playlist-box" id="playlist-container">
+                        <div style="font-size: 0.65rem; color: #555; text-align: center; padding: 10px;">Belum ada lagu dalam playlist. Pilih file di atas.</div>
+                    </div>
+                    <audio id="media-element" controls style="width: 100%; margin-top: 6px; height: 28px; display:none;"></audio>
+                </div>
+
+                <div style="margin-top: 8px; border-top: 1px solid var(--border); padding-top: 6px;">
+                    <label style="color: var(--accent-green); font-weight: bold; font-size: 0.7rem;">💾 PRESET MANAGEMENT:</label>
+                    <select id="preset-list" class="preset-select">
+                        <option value="">-- Pilih Preset --</option>
+                    </select>
+                    <div class="preset-controls">
+                        <button class="btn" id="btn-load-preset" style="background: var(--accent-blue); color: #111;">LOAD</button>
+                        <button class="btn" id="btn-save-preset" style="background: var(--accent-green); color: #111;">SIMPAN</button>
+                        <button class="btn" id="btn-delete-preset" style="background: var(--accent-red); color: #111;">HAPUS</button>
+                        <button class="btn" id="btn-export-preset" style="background: var(--accent-yellow); color: #111;">EXPORT</button>
+                    </div>
+                    <input type="file" id="import-file-input" accept=".json" style="display: none;">
+                    <button class="btn" id="btn-import-preset" style="background: var(--accent-purple); color: #111; margin-top: 4px;">📥 IMPORT DARI FILE</button>
+                </div>
+
+                <div style="margin-top: 8px; border-top: 1px solid var(--border); padding-top: 6px;">
+                    <div class="knob-grid">
+                        <div class="knob-container">
+                            <div class="knob-label">Gain Trim</div>
+                            <div class="knob-wrapper">
+                                <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-input-trim" cx="19" cy="19" r="12" stroke="var(--accent-green)"/></svg>
+                                <div class="knob" id="knob-trim" data-id="input-trim"><div class="knob-pointer"></div></div>
+                            </div>
+                            <div class="knob-val" id="val-trim">0.0 dB</div>
+                            <input type="range" id="input-trim" min="-12" max="6" step="0.5" value="0" data-default="0" style="display:none;">
+                        </div>
+                        <div class="knob-container">
+                            <div class="knob-label">Pan L/R</div>
+                            <div class="knob-wrapper">
+                                <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-input-pan" cx="19" cy="19" r="12" stroke="var(--accent-blue)"/></svg>
+                                <div class="knob" id="knob-pan" data-id="input-pan"><div class="knob-pointer"></div></div>
+                            </div>
+                            <div class="knob-val" id="val-pan">Center</div>
+                            <input type="range" id="input-pan" min="-1" max="1" step="0.1" value="0" data-default="0" style="display:none;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="right-column">
+        
+        <div class="panel">
+            <div class="graph-vu-container">
+                <div class="canvas-container">
+                    <div class="graph-overlay-header">
+                        <div class="graph-legend" id="graph-legend" style="display: none;">
+                            <div class="legend-item"><div class="legend-color" style="background: #38bdf8;"></div> Sub Band</div>
+                            <div class="legend-item"><div class="legend-color" style="background: #fb923c;"></div> Low Band</div>
+                            <div class="legend-item"><div class="legend-color" style="background: #4ade80;"></div> Mid Band</div>
+                            <div class="legend-item"><div class="legend-color" style="background: #f472b6;"></div> High Band</div>
+                            <div class="legend-item"><div class="legend-color" style="background: var(--accent-purple);"></div> EQ 31 Band</div>
+                        </div>
+                        <button class="switch-btn" id="sw-graph" style="pointer-events: auto;"><span class="led-dot"></span> 📈 GRAFIK: OFF</button>
+                    </div>
+                    <canvas id="analyzer"></canvas>
+                </div>
+
+                <div class="main-vu-panel">
+                    <div class="vu-channel-group">
+                        <div class="vu-channel-label">L</div>
+                        <div class="vu-meter-wrapper" style="height: 202px;"><div class="vu-led-bar" id="main-vu-l"><div class="vu-peak-dot" id="peak-main-vu-l"></div></div></div>
+                    </div>
+                    <div class="vu-channel-group">
+                        <div class="vu-channel-label">R</div>
+                        <div class="vu-meter-wrapper" style="height: 202px;"><div class="vu-led-bar" id="main-vu-r"><div class="vu-peak-dot" id="peak-main-vu-r"></div></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mid-console-container">
+            
+            <div class="fader-console-wrapper">
+                
+                <div style="background: #0f1017; border: 1px solid var(--border); border-radius: 6px; padding: 8px; margin-bottom: 8px;">
+                    <div style="font-size: 0.68rem; font-weight: bold; color: var(--accent-cyan); text-transform: uppercase; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between;">
+                        <span>🔊 Virtual Soundcheck (Noise Generator)</span>
+                        <span id="noise-status-text" style="font-size: 0.6rem; color: var(--accent-red);">STATUS: OFF</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                        <button class="switch-btn" id="btn-pink-noise" style="font-size: 0.65rem; justify-content: center; background: #1e2030; color: var(--accent-cyan); border-color: var(--accent-cyan);">
+                            <span class="led-dot"></span> PINK NOISE ON/OFF
+                        </button>
+                        <button class="switch-btn" id="btn-white-noise" style="font-size: 0.65rem; justify-content: center; background: #1e2030; color: var(--accent-cyan); border-color: var(--accent-cyan);">
+                            <span class="led-dot"></span> WHITE NOISE ON/OFF
+                        </button>
+                    </div>
+                </div>
+
+                <div style="font-size: 0.8rem; font-weight: bold; color: var(--accent-blue); margin-bottom: 8px; text-transform: uppercase;">
+                    🎛️ Split Feeder Console
+                </div>
+                
+                <div class="fader-console-grid">
+                    <div class="v-fader-strip">
+                        <div class="v-fader-title" style="color: var(--accent-blue);">Ch 1 Tab</div>
+                        <div class="v-fader-val" id="val-vol">OFF (-∞)</div>
+                        <div class="fader-and-vu">
+                            <div class="v-slider-wrapper">
+                                <input type="range" class="v-slider" id="input-vol" min="-30" max="6" step="0.5" value="-30" data-default="-30">
+                            </div>
+                            <div class="vu-meter-wrapper">
+                                <div class="vu-led-bar" id="vu-ch1-mono"><div class="vu-peak-dot" id="peak-vu-ch1-mono"></div></div>
+                            </div>
+                        </div>
+                        <button class="btn btn-fx-route" id="btn-fx-ch1" style="margin-top:4px;">[FX] OFF</button>
+                        <button class="btn btn-mute" id="btn-mute-ch1" style="margin-top:2px; font-size:0.55rem;">MUTE</button>
+                    </div>
+
+                    <div class="v-fader-strip">
+                        <div class="v-fader-title" style="color: var(--accent-red);">Ch 2 Mic</div>
+                        <div class="v-fader-val" id="val-mic-vol">OFF (-∞)</div>
+                        <div class="fader-and-vu">
+                            <div class="v-slider-wrapper">
+                                <input type="range" class="v-slider" id="mic-vol" min="-30" max="6" step="0.5" value="-30" data-default="-30">
+                            </div>
+                            <div class="vu-meter-wrapper">
+                                <div class="vu-led-bar" id="vu-mic-mono"><div class="vu-peak-dot" id="peak-vu-mic-mono"></div></div>
+                            </div>
+                        </div>
+                        <button class="btn btn-fx-route" id="btn-fx-mic" style="margin-top:4px;">[FX] OFF</button>
+                        <button class="btn btn-mute" id="btn-mute-mic" style="margin-top:2px; font-size:0.55rem;">MUTE</button>
+                    </div>
+
+                    <div class="v-fader-strip">
+                        <div class="v-fader-title" style="color: var(--accent-yellow);">Ch 3 File</div>
+                        <div class="v-fader-val" id="val-file-vol">OFF (-∞)</div>
+                        <div class="fader-and-vu">
+                            <div class="v-slider-wrapper">
+                                <input type="range" class="v-slider" id="file-vol" min="-30" max="6" step="0.5" value="-30" data-default="-30">
+                            </div>
+                            <div class="vu-meter-wrapper">
+                                <div class="vu-led-bar" id="vu-file-mono"><div class="vu-peak-dot" id="peak-vu-file-mono"></div></div>
+                            </div>
+                        </div>
+                        <button class="btn btn-fx-route" id="btn-fx-file" style="margin-top:4px;">[FX] OFF</button>
+                        <button class="btn btn-mute" id="btn-mute-file" style="margin-top:2px; font-size:0.55rem;">MUTE</button>
+                    </div>
+
+                    <div class="v-fader-strip">
+                        <div class="v-fader-title" style="color: var(--accent-pink);">Master Efek</div>
+                        <div class="v-fader-val" id="val-master-efek">OFF (-∞)</div>
+                        <div class="fader-and-vu">
+                            <div class="v-slider-wrapper">
+                                <input type="range" class="v-slider" id="master-efek-fader" min="-30" max="6" step="0.5" value="-30" data-default="-30">
+                            </div>
+                            <div class="vu-meter-wrapper">
+                                <div class="vu-led-bar" id="vu-mefek-mono"><div class="vu-peak-dot" id="peak-vu-mefek-mono"></div></div>
+                            </div>
+                        </div>
+                        <button class="btn btn-mute" id="btn-mute-mefek" style="margin-top:6px; font-size:0.55rem;">MUTE</button>
+                    </div>
+
+                    <div class="v-fader-strip" style="background: #1e1628; border-color: var(--accent-purple);">
+                        <div class="v-fader-title" style="color: var(--accent-purple);">Master Out</div>
+                        <div class="v-fader-val" id="val-master-vol">OFF (-∞)</div>
+                        <div class="fader-and-vu">
+                            <div class="v-slider-wrapper">
+                                <input type="range" class="v-slider" id="master-vol" min="-30" max="6" step="0.5" value="-30" data-default="-30">
+                            </div>
+                            <div class="vu-meter-wrapper">
+                                <div class="vu-led-bar" id="vu-mmixer-mono"><div class="vu-peak-dot" id="peak-vu-mmixer-mono"></div></div>
+                            </div>
+                        </div>
+                        <button class="btn btn-mute" id="btn-mute-mmixer" style="margin-top:6px; font-size:0.55rem; background: #2a1f3d; border-color: var(--accent-purple); color: var(--accent-purple);">MUTE</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel-dlms" style="border-left: 2px dashed var(--border); padding-left: 10px;">
+                <div class="module-header">
+                    <div class="module-title" style="color: var(--accent-pink);">🎛️ DLMS Management System</div>
+                    <button class="switch-btn" id="sw-dlms"><span class="led-dot"></span> DLMS OFF</button>
+                </div>
+
+                <div class="dlms-section-grid">
+                    
+                    <div class="dlms-subcard dlms-subcard-sub" style="border-color: rgba(56, 189, 248, 0.4);">
+                        <div class="dlms-card-title" style="color: #38bdf8; background: rgba(56, 189, 248, 0.1); border-radius: 4px; padding: 4px;">🔊 Sub / Bass</div>
+                        <div class="dlms-action-row">
+                            <button class="btn btn-dlms-solo" id="dlms-solo-sub">SOLO</button>
+                            <button class="btn btn-dlms-mute" id="dlms-mute-sub">MUTE</button>
+                        </div>
+                        <div class="knob-container">
+                            <div class="knob-label">Sub HPF</div>
+                            <div class="knob-wrapper">
+                                <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-sub-hpf" cx="19" cy="19" r="12" stroke="#38bdf8"/></svg>
+                                <div class="knob" id="knob-sub-hpf" data-id="sub-hpf"><div class="knob-pointer" style="background: #38bdf8; box-shadow: 0 0 4px #38bdf8;"></div></div>
+                            </div>
+                            <div class="knob-val" id="val-sub-hpf">25 Hz</div>
+                            <input type="range" id="sub-hpf" min="20" max="100" step="1" value="25" data-default="25" style="display:none;">
+                        </div>
+                        <div class="knob-container">
+                            <div class="knob-label">Sub LPF</div>
+                            <div class="knob-wrapper">
+                                <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-sub-lpf" cx="19" cy="19" r="12" stroke="#38bdf8"/></svg>
+                                <div class="knob" id="knob-sub-lpf" data-id="sub-lpf"><div class="knob-pointer" style="background: #38bdf8; box-shadow: 0 0 4px #38bdf8;"></div></div>
+                            </div>
+                            <div class="knob-val" id="val-sub-lpf">100 Hz</div>
+                            <input type="range" id="sub-lpf" min="50" max="160" step="1" value="100" data-default="100" style="display:none;">
+                        </div>
+                        <div class="knob-container">
+                            <div class="knob-label">Sub Delay</div>
+                            <div class="knob-wrapper">
+                                <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-sub-delay" cx="19" cy="19" r="12" stroke="#38bdf8"/></svg>
+                                <div class="knob" id="knob-sub-delay" data-id="sub-delay"><div class="knob-pointer" style="background: #38bdf8; box-shadow: 0 0 4px #38bdf8;"></div></div>
+                            </div>
+                            <div class="knob-val" id="val-sub-delay">0.0 ms</div>
+                            <input type="range" id="sub-delay" min="0" max="50" step="0.5" value="0" data-default="0" style="display:none;">
+                        </div>
+                        <div class="knob-container">
+                            <div class="knob-label">Sub Gain</div>
+                            <div class="knob-wrapper">
+                                <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-sub-gain" cx="19" cy="19" r="12" stroke="#38bdf8"/></svg>
+                                <div class="knob" id="knob-sub-gain" data-id="sub-gain"><div class="knob-pointer" style="background: #38bdf8; box-shadow: 0 0 4px #38bdf8;"></div></div>
+                            </div>
+                            <div class="knob-val" id="val-sub-gain">0.0 dB</div>
+                            <input type="range" id="sub-gain" min="-10" max="10" step="0.5" value="0" data-default="0" style="display:none;">
+                        </div>
+                    </div>
+
+                    <div class="dlms-subcard dlms-subcard-low" style="border-color: rgba(251, 146, 60, 0.4);">
+                        <div class="dlms-card-title" style="color: #fb923c; background: rgba(251, 146, 60, 0.1); border-radius: 4px; padding: 4px;">🥁 Low / Woofer</div>
+                        <div class="dlms-action-row">
+                            <button class="btn btn-dlms-solo" id="dlms-solo-low">SOLO</button>
+                            <button class="btn btn-dlms-mute" id="dlms-mute-low">MUTE</button>
+                        </div>
+                        <div class="knob-container">
+                            <div class="knob-label">Low HPF</div>
+                            <div class="knob-wrapper">
+                                <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-low-hpf" cx="19" cy="19" r="12" stroke="#fb923c"/></svg>
+                                <div class="knob" id="knob-low-hpf" data-id="low-hpf"><div class="knob-pointer" style="background: #fb923c; box-shadow: 0 0 4px #fb923c;"></div></div>
+                            </div>
+                            <div class="knob-val" id="val-low-hpf">80 Hz</div>
+                            <input type="range" id="low-hpf" min="50" max="150" step="1" value="80" data-default="80" style="display:none;">
+                        </div>
+                        <div class="knob-container">
+                            <div class="knob-label">Low LPF</div>
+                            <div class="knob-wrapper">
+                                <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-low-lpf" cx="19" cy="19" r="12" stroke="#fb923c"/></svg>
+                                <div class="knob" id="knob-low-lpf" data-id="low-lpf"><div class="knob-pointer" style="background: #fb923c; box-shadow: 0 0 4px #fb923c;"></div></div>
+                            </div>
+                            <div class="knob-val" id="val-low-lpf">400 Hz</div>
+                            <input type="range" id="low-lpf" min="200" max="800" step="10" value="400" data-default="400" style="display:none;">
+                        </div>
+                        <div class="knob-container">
+                            <div class="knob-label">Low Delay</div>
+                            <div class="knob-wrapper">
+                                <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-low-delay" cx="19" cy="19" r="12" stroke="#fb923c"/></svg>
+                                <div class="knob" id="knob-low-delay" data-id="low-delay"><div class="knob-pointer" style="background: #fb923c; box-shadow: 0 0 4px #fb923c;"></div></div>
+                            </div>
+                            <div class="knob-val" id="val-low-delay">0.0 ms</div>
+                            <input type="range" id="low-delay" min="0" max="50" step="0.5" value="0" data-default="0" style="display:none;">
+                        </div>
+                        <div class="knob-container">
+                            <div class="knob-label">Low Gain</div>
+                            <div class="knob-wrapper">
+                                <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-low-gain" cx="19" cy="19" r="12" stroke="#fb923c"/></svg>
+                                <div class="knob" id="knob-low-gain" data-id="low-gain"><div class="knob-pointer" style="background: #fb923c; box-shadow: 0 0 4px #fb923c;"></div></div>
+                            </div>
+                            <div class="knob-val" id="val-low-gain">0.0 dB</div>
+                            <input type="range" id="low-gain" min="-10" max="10" step="0.5" value="0" data-default="0" style="display:none;">
+                        </div>
+                    </div>
+
+                    <div class="dlms-subcard dlms-subcard-mid" style="border-color: rgba(74, 222, 128, 0.4);">
+                        <div class="dlms-card-title" style="color: #4ade80; background: rgba(74, 222, 128, 0.1); border-radius: 4px; padding: 4px;">📻 Mid Range</div>
+                        <div class="dlms-action-row">
+                            <button class="btn btn-dlms-solo" id="dlms-solo-mid">SOLO</button>
+                            <button class="btn btn-dlms-mute" id="dlms-mute-mid">MUTE</button>
+                        </div>
+                        <div class="knob-container">
+                            <div class="knob-label">Mid HPF</div>
+                            <div class="knob-wrapper">
+                                <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-mid-hpf" cx="19" cy="19" r="12" stroke="#4ade80"/></svg>
+                                <div class="knob" id="knob-mid-hpf" data-id="mid-hpf"><div class="knob-pointer" style="background: #4ade80; box-shadow: 0 0 4px #4ade80;"></div></div>
+                            </div>
+                            <div class="knob-val" id="val-mid-hpf">350 Hz</div>
+                            <input type="range" id="mid-hpf" min="200" max="800" step="10" value="350" data-default="350" style="display:none;">
+                        </div>
+                        <div class="knob-container">
+                            <div class="knob-label">Mid LPF</div>
+                            <div class="knob-wrapper">
+                                <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-mid-lpf" cx="19" cy="19" r="12" stroke="#4ade80"/></svg>
+                                <div class="knob" id="knob-mid-lpf" data-id="mid-lpf"><div class="knob-pointer" style="background: #4ade80; box-shadow: 0 0 4px #4ade80;"></div></div>
+                            </div>
+                            <div class="knob-val" id="val-mid-lpf">4.0 kHz</div>
+                            <input type="range" id="mid-lpf" min="1500" max="8000" step="100" value="4000" data-default="4000" style="display:none;">
+                        </div>
+                        <div class="knob-container">
+                            <div class="knob-label">Mid Delay</div>
+                            <div class="knob-wrapper">
+                                <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-mid-delay" cx="19" cy="19" r="12" stroke="#4ade80"/></svg>
+                                <div class="knob" id="knob-mid-delay" data-id="mid-delay"><div class="knob-pointer" style="background: #4ade80; box-shadow: 0 0 4px #4ade80;"></div></div>
+                            </div>
+                            <div class="knob-val" id="val-mid-delay">0.0 ms</div>
+                            <input type="range" id="mid-delay" min="0" max="50" step="0.5" value="0" data-default="0" style="display:none;">
+                        </div>
+                        <div class="knob-container">
+                            <div class="knob-label">Mid Gain</div>
+                            <div class="knob-wrapper">
+                                <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-mid-gain" cx="19" cy="19" r="12" stroke="#4ade80"/></svg>
+                                <div class="knob" id="knob-mid-gain" data-id="mid-gain"><div class="knob-pointer" style="background: #4ade80; box-shadow: 0 0 4px #4ade80;"></div></div>
+                            </div>
+                            <div class="knob-val" id="val-mid-gain">0.0 dB</div>
+                            <input type="range" id="mid-gain" min="-10" max="10" step="0.5" value="0" data-default="0" style="display:none;">
+                        </div>
+                    </div>
+
+                    <div class="dlms-subcard dlms-subcard-high" style="border-color: rgba(244, 114, 182, 0.4);">
+                        <div class="dlms-card-title" style="color: #f472b6; background: rgba(244, 114, 182, 0.1); border-radius: 4px; padding: 4px;">⚡ High Freq</div>
+                        <div class="dlms-action-row">
+                            <button class="btn btn-dlms-solo" id="dlms-solo-high">SOLO</button>
+                            <button class="btn btn-dlms-mute" id="dlms-mute-high">MUTE</button>
+                        </div>
+                        <div class="knob-container">
+                            <div class="knob-label">High HPF</div>
+                            <div class="knob-wrapper">
+                                <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-high-hpf" cx="19" cy="19" r="12" stroke="#f472b6"/></svg>
+                                <div class="knob" id="knob-high-hpf" data-id="high-hpf"><div class="knob-pointer" style="background: #f472b6; box-shadow: 0 0 4px #f472b6;"></div></div>
+                            </div>
+                            <div class="knob-val" id="val-high-hpf">3.5 kHz</div>
+                            <input type="range" id="high-hpf" min="1500" max="8000" step="100" value="3500" data-default="3500" style="display:none;">
+                        </div>
+                        <div class="knob-container">
+                            <div class="knob-label">High LPF</div>
+                            <div class="knob-wrapper">
+                                <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-high-lpf" cx="19" cy="19" r="12" stroke="#f472b6"/></svg>
+                                <div class="knob" id="knob-high-lpf" data-id="high-lpf"><div class="knob-pointer" style="background: #f472b6; box-shadow: 0 0 4px #f472b6;"></div></div>
+                            </div>
+                            <div class="knob-val" id="val-high-lpf">20.0 kHz</div>
+                            <input type="range" id="high-lpf" min="6000" max="20000" step="200" value="20000" data-default="20000" style="display:none;">
+                        </div>
+                        <div class="knob-container">
+                            <div class="knob-label">High Delay</div>
+                            <div class="knob-wrapper">
+                                <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-high-delay" cx="19" cy="19" r="12" stroke="#f472b6"/></svg>
+                                <div class="knob" id="knob-high-delay" data-id="high-delay"><div class="knob-pointer" style="background: #f472b6; box-shadow: 0 0 4px #f472b6;"></div></div>
+                            </div>
+                            <div class="knob-val" id="val-high-delay">0.0 ms</div>
+                            <input type="range" id="high-delay" min="0" max="50" step="0.5" value="0" data-default="0" style="display:none;">
+                        </div>
+                        <div class="knob-container">
+                            <div class="knob-label">High Gain</div>
+                            <div class="knob-wrapper">
+                                <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-high-gain" cx="19" cy="19" r="12" stroke="#f472b6"/></svg>
+                                <div class="knob" id="knob-high-gain" data-id="high-gain"><div class="knob-pointer" style="background: #f472b6; box-shadow: 0 0 4px #f472b6;"></div></div>
+                            </div>
+                            <div class="knob-val" id="val-high-gain">0.0 dB</div>
+                            <input type="range" id="high-gain" min="-10" max="10" step="0.5" value="0" data-default="0" style="display:none;">
+                        </div>
+                    </div>
+
+                    <div class="dlms-subcard" style="border-color: rgba(245, 194, 231, 0.4);">
+                        <div class="dlms-card-title" style="color: var(--accent-pink); background: rgba(245, 194, 231, 0.1); border-radius: 4px; padding: 4px;">🎛️ Master EQ & Enhancer</div>
+                        <div class="knob-grid" style="grid-template-columns: repeat(3, 1fr);">
+                            <div class="knob-container">
+                                <div class="knob-label">Low EQ</div>
+                                <div class="knob-wrapper">
+                                    <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-eq-low" cx="19" cy="19" r="12" stroke="var(--accent-pink)"/></svg>
+                                    <div class="knob" id="knob-eq-low" data-id="eq-low"><div class="knob-pointer"></div></div>
+                                </div>
+                                <div class="knob-val" id="val-eq-low">0.0 dB</div>
+                                <input type="range" id="eq-low" min="-10" max="10" step="0.5" value="0" data-default="0" style="display:none;">
+                            </div>
+                            <div class="knob-container">
+                                <div class="knob-label">Low-Mid</div>
+                                <div class="knob-wrapper">
+                                    <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-eq-lowmid" cx="19" cy="19" r="12" stroke="var(--accent-pink)"/></svg>
+                                    <div class="knob" id="knob-eq-lowmid" data-id="eq-lowmid"><div class="knob-pointer"></div></div>
+                                </div>
+                                <div class="knob-val" id="val-eq-lowmid">0.0 dB</div>
+                                <input type="range" id="eq-lowmid" min="-10" max="10" step="0.5" value="0" data-default="0" style="display:none;">
+                            </div>
+                            <div class="knob-container">
+                                <div class="knob-label">Mid EQ</div>
+                                <div class="knob-wrapper">
+                                    <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-eq-mid" cx="19" cy="19" r="12" stroke="var(--accent-pink)"/></svg>
+                                    <div class="knob" id="knob-eq-mid" data-id="eq-mid"><div class="knob-pointer"></div></div>
+                                </div>
+                                <div class="knob-val" id="val-eq-mid">0.0 dB</div>
+                                <input type="range" id="eq-mid" min="-10" max="10" step="0.5" value="0" data-default="0" style="display:none;">
+                            </div>
+                            <div class="knob-container">
+                                <div class="knob-label">High-Mid</div>
+                                <div class="knob-wrapper">
+                                    <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-eq-highmid" cx="19" cy="19" r="12" stroke="var(--accent-pink)"/></svg>
+                                    <div class="knob" id="knob-eq-highmid" data-id="eq-highmid"><div class="knob-pointer"></div></div>
+                                </div>
+                                <div class="knob-val" id="val-eq-highmid">0.0 dB</div>
+                                <input type="range" id="eq-highmid" min="-10" max="10" step="0.5" value="0" data-default="0" style="display:none;">
+                            </div>
+                            <div class="knob-container">
+                                <div class="knob-label">High EQ</div>
+                                <div class="knob-wrapper">
+                                    <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-eq-high" cx="19" cy="19" r="12" stroke="var(--accent-pink)"/></svg>
+                                    <div class="knob" id="knob-eq-high" data-id="eq-high"><div class="knob-pointer"></div></div>
+                                </div>
+                                <div class="knob-val" id="val-eq-high">0.0 dB</div>
+                                <input type="range" id="eq-high" min="-10" max="10" step="0.5" value="0" data-default="0" style="display:none;">
+                            </div>
+                            <div class="knob-container">
+                                <div class="knob-label">Air Enh</div>
+                                <div class="knob-wrapper">
+                                    <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-air-enhancer" cx="19" cy="19" r="12" stroke="var(--accent-pink)"/></svg>
+                                    <div class="knob" id="knob-air-enhancer" data-id="air-enhancer"><div class="knob-pointer"></div></div>
+                                </div>
+                                <div class="knob-val" id="val-air-enhancer">0.0 dB</div>
+                                <input type="range" id="air-enhancer" min="0" max="10" step="0.5" value="0" data-default="0" style="display:none;">
+                            </div>
+                            <div class="knob-container">
+                                <div class="knob-label">Sub Enhanc</div>
+                                <div class="knob-wrapper">
+                                    <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-sub-enhancer" cx="19" cy="19" r="12" stroke="var(--accent-blue)"/></svg>
+                                    <div class="knob" id="knob-sub-enhancer" data-id="sub-enhancer"><div class="knob-pointer" style="background: var(--accent-blue);"></div></div>
+                                </div>
+                                <div class="knob-val" id="val-sub-enhancer">0.0 dB</div>
+                                <input type="range" id="sub-enhancer" min="0" max="12" step="0.5" value="0" data-default="0" style="display:none;">
+                            </div>
+                            <div class="knob-container">
+                                <div class="knob-label">Harmonic</div>
+                                <div class="knob-wrapper">
+                                    <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-harmonic-sat" cx="19" cy="19" r="12" stroke="var(--accent-yellow)"/></svg>
+                                    <div class="knob" id="knob-harmonic-sat" data-id="harmonic-sat"><div class="knob-pointer" style="background: var(--accent-yellow);"></div></div>
+                                </div>
+                                <div class="knob-val" id="val-harmonic-sat">0.0%</div>
+                                <input type="range" id="harmonic-sat" min="0" max="100" step="1" value="0" data-default="0" style="display:none;">
+                            </div>
+                            <div class="knob-container">
+                                <div class="knob-label">Limiter</div>
+                                <div class="knob-wrapper">
+                                    <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-limiter-thresh" cx="19" cy="19" r="12" stroke="var(--accent-red)"/></svg>
+                                    <div class="knob" id="knob-limiter" data-id="limiter-thresh"><div class="knob-pointer" style="background: var(--accent-red);"></div></div>
+                                </div>
+                                <div class="knob-val" id="val-limiter">-4.0 dB</div>
+                                <input type="range" id="limiter-thresh" min="-15" max="0" step="0.5" value="-4" data-default="-4" style="display:none;">
+                            </div>
+                        </div>
+                        <button class="switch-btn limiter-active" id="sw-limiter" style="margin-top: 6px; width: 100%; justify-content: center;"><span class="led-dot"></span> LIMITER ON</button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="panel" id="panel-eq31" style="border-color: var(--accent-purple);">
+            <div class="module-header">
+                <div class="module-title" style="color: var(--accent-purple);">🎚️ GRAPHIC EQUALIZER 31-BAND (DENGAN PRESET SOUND HOREG)</div>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                    <select id="eq-preset-select" class="preset-select" style="margin-top: 0; width: 170px; font-size: 0.65rem; padding: 3px 6px;">
+                        <option value="">-- Pilih EQ Preset --</option>
+                        <option value="flat">Flat (Normal)</option>
+                        <option value="horeg">🔥 Sound Horeg (Sub & G horeg)</option>
+                        <option value="hajatan">Hajatan / Dangdut</option>
+                        <option value="ceksound">Cek Sound Lapangan</option>
+                        <option value="vocal">Vokal / Pidato / Masjid</option>
+                    </select>
+                    <button class="switch-btn" id="sw-eq31"><span class="led-dot"></span> EQ 31 OFF</button>
+                </div>
+            </div>
+            <div class="eq-container" id="eq31-sliders-holder"></div>
+        </div>
+
+        <div class="tuning-dsp-row">
+            
+            <div class="panel" id="panel-tuning" style="border-color: var(--accent-orange);">
+                <div class="module-header">
+                    <div class="module-title" style="color: var(--accent-orange);">🛠️ Tuning Center (Anti-Feedback & Dynamic EQ)</div>
+                </div>
+                
+                <div class="section-subtitle">🛡️ Anti Feedback & Auto Suppressor</div>
+                <div class="knob-grid" id="subpanel-fb-content" style="grid-template-columns: repeat(3, 1fr); gap: 6px;">
+                    <div class="knob-container">
+                        <div class="knob-label">Vocal Cut</div>
+                        <div class="knob-wrapper">
+                            <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-fb-notch-freq" cx="19" cy="19" r="12" stroke="var(--accent-orange)"/></svg>
+                            <div class="knob" id="knob-fb-notch" data-id="fb-notch-freq"><div class="knob-pointer" style="background: var(--accent-orange);"></div></div>
+                        </div>
+                        <div class="knob-val" id="val-fb-notch">2.5 kHz</div>
+                        <input type="range" id="fb-notch-freq" min="800" max="8000" step="50" value="2500" data-default="2500" style="display:none;">
+                    </div>
+
+                    <div class="knob-container">
+                        <div class="knob-label">Notch Depth</div>
+                        <div class="knob-wrapper">
+                            <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-fb-notch-depth" cx="19" cy="19" r="12" stroke="var(--accent-orange)"/></svg>
+                            <div class="knob" id="knob-fb-depth" data-id="fb-notch-depth"><div class="knob-pointer" style="background: var(--accent-orange);"></div></div>
+                        </div>
+                        <div class="knob-val" id="val-fb-depth">-12.0 dB</div>
+                        <input type="range" id="fb-notch-depth" min="-24" max="0" step="0.5" value="-12" data-default="-12" style="display:none;">
+                    </div>
+
+                    <div class="knob-container">
+                        <div class="knob-label">Vocal Gate</div>
+                        <div class="knob-wrapper">
+                            <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-gate-thresh" cx="19" cy="19" r="12" stroke="var(--accent-orange)"/></svg>
+                            <div class="knob" id="knob-gate-thresh" data-id="gate-thresh"><div class="knob-pointer" style="background: var(--accent-orange);"></div></div>
+                        </div>
+                        <div class="knob-val" id="val-gate-thresh">-45 dB</div>
+                        <input type="range" id="gate-thresh" min="-60" max="-20" step="1" value="-45" data-default="-45" style="display:none;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;">
+                    <button class="switch-btn" id="sw-feedback" style="justify-content:center;"><span class="led-dot"></span> FB NOTCH OFF</button>
+                    <button class="switch-btn" id="sw-autofb" style="justify-content:center;"><span class="led-dot"></span> AUTO FEEDBACK OFF</button>
+                </div>
+
+                <div class="section-subtitle" style="margin-top: 12px; color: var(--accent-cyan);">⚡ Dynamic EQ (Anti-Booming)</div>
+                <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between;">
+                    <div class="knob-container" style="border-color: var(--accent-cyan); width: 120px;">
+                        <div class="knob-label" style="color: var(--accent-cyan);">Dyn Threshold</div>
+                        <div class="knob-wrapper" style="margin: 0 auto;">
+                            <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-dyn-thresh" cx="19" cy="19" r="12" stroke="var(--accent-cyan)"/></svg>
+                            <div class="knob" id="knob-dyn" data-id="dyn-thresh"><div class="knob-pointer" style="background: var(--accent-cyan);"></div></div>
+                        </div>
+                        <div class="knob-val" id="val-dyn-thresh">-18 dB</div>
+                        <input type="range" id="dyn-thresh" min="-30" max="-5" step="0.5" value="-18" data-default="-18" style="display:none;">
+                    </div>
+                    <button class="switch-btn" id="sw-dynamic-eq" style="flex: 1; height: 50px; justify-content:center; font-size: 0.8rem;">
+                        <span class="led-dot"></span> DYNAMIC EQ OFF
+                    </button>
+                </div>
+
+                <div class="section-subtitle" style="margin-top: 12px; color: var(--accent-pink);">✨ Efek Nyesss</div>
+                <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between;">
+                    <div class="knob-container" style="border-color: var(--accent-pink); width: 120px;">
+                        <div class="knob-label" style="color: var(--accent-pink);">Nyesss Gain</div>
+                        <div class="knob-wrapper" style="margin: 0 auto;">
+                            <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-input-nyesss-gain" cx="19" cy="19" r="12" stroke="var(--accent-pink)"/></svg>
+                            <div class="knob" id="knob-nyesss" data-id="input-nyesss-gain"><div class="knob-pointer" style="background: var(--accent-pink);"></div></div>
+                        </div>
+                        <div class="knob-val" id="val-nyesss-gain">0.0 dB</div>
+                        <input type="range" id="input-nyesss-gain" min="-10" max="10" step="0.5" value="0" data-default="0" style="display:none;">
+                    </div>
+                    <button class="switch-btn" id="sw-nyesss" style="flex: 1; height: 50px; justify-content:center; font-size: 0.8rem;">
+                        <span class="led-dot"></span> NYESSS OFF
+                    </button>
+                </div>
+            </div>
+
+            <div class="panel" id="panel-dsp" style="border-color: #8be9fd;">
+                <div class="module-header">
+                    <div class="module-title" style="color: #8be9fd;">🎛️ 99 DSP Digital Processor</div>
+                    <button class="switch-btn" id="sw-dsp"><span class="led-dot"></span> DSP OFF</button>
+                </div>
+
+                <div id="subpanel-dsp-content">
+                    <div style="background: #08090c; border: 1px solid #202130; border-radius: 6px; padding: 8px; margin-bottom: 8px; text-align: center;">
+                        <div style="font-size: 0.6rem; color: #8be9fd; font-weight: bold; text-transform: uppercase;">Selected Preset (01 - 99)</div>
+                        <div id="dsp-preset-display" style="font-size: 0.95rem; font-weight: 800; color: var(--accent-yellow); margin-top: 2px;">01: VOCAL HALL REVERB</div>
+                    </div>
+
+                    <div style="margin-bottom: 8px;">
+                        <label style="font-size: 0.65rem; color: #a6adc8; font-weight: bold;">Pilih Nomor Preset 99 DSP:</label>
+                        <select id="dsp-preset-select" class="input-select-style" style="margin-top: 2px; font-weight: bold; color: var(--accent-blue);">
+                        </select>
+                    </div>
+
+                    <div class="knob-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="knob-container">
+                            <div class="knob-label">Parameter</div>
+                            <div class="knob-wrapper">
+                                <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-fx-rev-decay" cx="19" cy="19" r="12" stroke="#8be9fd"/></svg>
+                                <div class="knob" id="knob-rev-decay" data-id="fx-rev-decay"><div class="knob-pointer"></div></div>
+                            </div>
+                            <div class="knob-val" id="val-rev-decay">2.5s</div>
+                            <input type="range" id="fx-rev-decay" min="0.2" max="10.0" step="0.1" value="2.5" data-default="2.5" style="display:none;">
+                        </div>
+                        <div class="knob-container">
+                            <div class="knob-label">FX Return / Mix</div>
+                            <div class="knob-wrapper">
+                                <svg class="knob-svg-ring" viewBox="0 0 38 38"><circle class="ring-bg" cx="19" cy="19" r="12"/><circle class="ring-progress" id="ring-fx-mix" cx="19" cy="19" r="12" stroke="#8be9fd"/></svg>
+                                <div class="knob" id="knob-mix" data-id="fx-mix"><div class="knob-pointer"></div></div>
+                            </div>
+                            <div class="knob-val" id="val-fxmix">0%</div>
+                            <input type="range" id="fx-mix" min="0" max="0.8" step="0.05" value="0" data-default="0" style="display:none;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    window.addEventListener('load', function() {
+        const loadingScreen = document.getElementById('loading-screen');
+        const loadingBar = document.getElementById('loading-bar');
+        const loadingText = document.getElementById('loading-text');
+        
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += Math.floor(Math.random() * 4) + 2; 
+
+            if (progress >= 20 && progress < 45) {
+                loadingText.innerText = "MEMUAT CORE AUDIO ENGINE...";
+            } else if (progress >= 45 && progress < 75) {
+                loadingText.innerText = "MENGINISIALISASI DLMS & EQ 31-BAND...";
+            } else if (progress >= 75 && progress < 98) {
+                loadingText.innerText = "MENYIAPKAN 99 DSP & SOUNDCHECK GENERATOR...";
+            }
+
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(interval);
+                loadingText.innerText = "SKY PRO AUDIO SIAP DIGUNAKAN!";
+                setTimeout(() => {
+                    loadingScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                    }, 800);
+                }, 500);
+            }
+            loadingBar.style.width = progress + '%';
+        }, 80);
+    });
+
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let ctx = null;
+    const mediaEl = document.getElementById('media-element');
+    const sharedVideoPreview = document.getElementById('shared-video-preview');
+    const ytPlaceholder = document.getElementById('yt-placeholder');
+    const vidZoomControls = document.getElementById('vid-zoom-controls');
+    
+    let sourceNode = null;
+    let micStreamNode = null, micStream = null, isMicActive = false;
+    let tabStream = null, tabStreamNode = null, isTabAudioActive = false;
+    
+    let playlistFiles = [];
+    let currentPlaylistIndex = 0;
+    let noiseSourceNode = null;
+    let activeNoiseType = null;
+
+    let globalMasterGain, summingHeadroom, ch1Trim, ch1Panner, ch1Fader, ch1MuteNode;
+    let micTrim, micPanner, micFader, micMuteNode, fileTrim, filePanner, fileFader, fileMuteNode;
+    let fileAgcNode, feedbackNotch, autoFeedbackNotch, gateGain, dynamicEqFilter, masterInputBus, ch1FxSend, micFxSend, fileFxSend;
+    let combinedFxBus, masterEfekGain, masterEfekMuteNode, masterVolNode, masterMixerMuteNode;
+    let convolverNode, fxWetGain, nyesssFilter, eqLow, eqLowMid, eqMid, eqHighMid, eqHigh;
+    let airEnhancerFilter, subEnhancerFilter, subEnhancerGain, subHPF, subLPF, subDelayNode, subGainNode;
+    let lowHPF, lowLPF, lowDelayNode, lowGainNode, midHPF, midLPF, midDelayNode, midGainNode;
+    let highHPF, highLPF, highDelayNode, highGainNode, dlmsProcessOut, dlmsBypassGain, safetyLimiter;
+    let limiterActiveGain, limiterBypassGain;
+    let splitterMain, analyserMainL, analyserMainR, splitterCh1, analyserCh1L, analyserCh1R;
+    let splitterMic, analyserMicL, analyserMicR, splitterFile, analyserFileL, analyserFileR;
+    let splitterMEfek, analyserMEfekL, analyserMEfekR, analyserEqInput;
+    let eq31Filters = [], eqSliders = [];
+
+    const dspPresetList = [
+        "VOCAL HALL REVERB", "LARGE CHURCH REVERB", "WARM STUDIO REVERB", "ARENA REVERB", "CATHEDRAL REVERB",
+        "PLATE REVERB 1", "PLATE REVERB 2", "VINTAGE PLATE", "BRIGHT PLATE", "VOCAL PLATE",
+        "SMALL ROOM REVERB", "STUDIO ROOM", "VOCAL BOOTH", "DRUM ROOM", "LIVE STAGE ROOM",
+        "STAGE ECHO 1", "STAGE ECHO 2", "SLAPBACK ECHO", "LONG ECHO", "PING PONG DELAY",
+        "DELAY + REVERB 1", "DELAY + REVERB 2", "VOCAL ECHO VERB", "STADIUM DELAY", "MULTITAP DELAY",
+        "CHORUS VOCAL", "DEEP CHORUS", "CHORUS + REVERB", "FLANGER CLASSIC", "DEEP FLANGER",
+        "PHASER WARM", "SYMPHONIC ENSEMBLE", "VOCAL DOUBLER", "WIDE STEREO EXPANDER", "RADIO BROADCAST VOX",
+        "TELEPHONE VOICE", "MEGAFON EFFECT", "LO-FI DISTORTION", "SUB BASS ENHANCER", "ACOUSTIC GUITAR VERB",
+        "ELECTRIC GUITAR VERB", "SNARE PLATE", "KICK ROOM", "TOM DRUM VERB", "OVERHEAD VERB",
+        "BRASS HALL", "STRINGS CHAMBER", "PIANO CONCERT HALL", "JAZZ CLUB REVERB", "BLUES BAR ECHO",
+        "ROCK ARENA VERB", "METAL DISTORTION VERB", "EDM CLUB SYNTH VERB", "TRANCE GATE DELAY", "AMBIENT SPACE PAD",
+        "DEEP COSMOS REVERB", "BLACKHOLE REVERB", "ETHEREAL GLOW", "UNDERWATER EFFECT", "CAVE ECHO",
+        "STADIUM ANNOUNCER", "CHURCH CHOIR VERB", "GOSPEL HARMONY VERB", "KARAOKE ECHO 1", "KARAOKE ECHO 2",
+        "KARAOKE REVERB PRO", "PRO VOCAL DELAY VERB", "SLAP DELAY WARM", "SHORT ROOM AMBIENCE", "BRIGHT VOCAL HALL",
+        "DARK VOCAL HALL", "WARM VOCAL PLATE", "CLEAR STAGE VERB", "AUDITORIUM REVERB", "CONCERT HALL WIDE",
+        "STADIUM LIVE 1", "STADIUM LIVE 2", "OUTDOOR FESTIVAL", "CLUB DANCE VERB", "DISCO ECHO",
+        "FUNK VOCAL VERB", "REGGAE DUB ECHO", "SLAPBACK TAPE ECHO", "TAPE DELAY WARM", "ANALOG DELAY EMULATION",
+        "DIGITAL DELAY CLEAN", "MODULATED DELAY", "PITCH DELAY VERB", "HARMONIC WARMTH VERB", "SUPER WIDE VOCAL",
+        "SOLOIST VOCAL VERB", "BACKING VOCALVERB", "DYNAMIC LIVE VERB", "MASTERING ROOM VERB", "ULTIMATE DUAL ENGINE",
+        "STUDIO MASTER 97", "STUDIO MASTER 98", "ULTIMATE 99 DSP PRO"
+    ];
+
+    const dspSelectEl = document.getElementById('dsp-preset-select');
+    dspPresetList.forEach((name, idx) => {
+        const numStr = String(idx + 1).padStart(2, '0');
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.innerText = `${numStr}: ${name}`;
+        dspSelectEl.appendChild(opt);
+    });
+
+    dspSelectEl.onchange = function(e) {
+        const idx = parseInt(e.target.value);
+        const numStr = String(idx + 1).padStart(2, '0');
+        const name = dspPresetList[idx];
+        document.getElementById('dsp-preset-display').innerText = `${numStr}: ${name}`;
+        if(ctx) updateDSPImpulse(idx);
+    };
+
+    const eq31Frequencies = [20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500, 16000, 20000];
+
+    let states = { 
+        input: true, dsp: false, dlms: false, 
+        nyesss: false, feedback: false, autoFeedback: false, dynamicEq: false, loop: false, graph: false, eq31: false,
+        ch1Fx: false, micFx: false, fileFx: false, agc: true,
+        limiter: true
+    };
+
+    let dlmsStates = {
+        subSolo: false, subMute: false,
+        lowSolo: false, lowMute: false,
+        midSolo: false, midMute: false,
+        highSolo: false, highMute: false
+    };
+
+    let mutes = { ch1: false, mic: false, file: false, mefek: false, mmixer: false };
+
+    function resetAudioContextClean() {
+        if (ctx) {
+            try { ctx.close(); } catch(e){}
+            ctx = null;
+            sourceNode = null;
+        }
+    }
+
+    function initAudioContext() {
+        if (!ctx) {
+            ctx = new AudioContext();
+
+            eq31Filters.length = 0;
+            eq31Frequencies.forEach((freq) => {
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'peaking';
+                filter.frequency.value = freq;
+                filter.Q.value = 4.3; 
+                filter.gain.value = 0;
+                eq31Filters.push(filter);
+            });
+
+            globalMasterGain = ctx.createGain();
+            summingHeadroom = ctx.createGain(); summingHeadroom.gain.value = 0.5;
+
+            ch1Trim = ctx.createGain(); ch1Panner = ctx.createStereoPanner(); ch1Fader = ctx.createGain(); ch1MuteNode = ctx.createGain();
+            micTrim = ctx.createGain(); micPanner = ctx.createStereoPanner(); micFader = ctx.createGain(); micMuteNode = ctx.createGain();
+            fileTrim = ctx.createGain(); filePanner = ctx.createStereoPanner(); fileFader = ctx.createGain(); fileMuteNode = ctx.createGain();
+
+            fileAgcNode = ctx.createDynamicsCompressor();
+            fileAgcNode.threshold.value = -20; fileAgcNode.knee.value = 8; fileAgcNode.ratio.value = 3; fileAgcNode.attack.value = 0.005; fileAgcNode.release.value = 0.3;
+
+            feedbackNotch = ctx.createBiquadFilter(); feedbackNotch.type = 'notch'; feedbackNotch.frequency.value = 2500; feedbackNotch.Q.value = 8.0;
+            autoFeedbackNotch = ctx.createBiquadFilter(); autoFeedbackNotch.type = 'notch'; autoFeedbackNotch.frequency.value = 1000; autoFeedbackNotch.Q.value = 12.0; autoFeedbackNotch.gain.value = 0;
+            gateGain = ctx.createGain();
+
+            dynamicEqFilter = ctx.createBiquadFilter(); dynamicEqFilter.type = 'peaking'; dynamicEqFilter.frequency.value = 200; dynamicEqFilter.Q.value = 2.0; dynamicEqFilter.gain.value = 0;
+
+            masterInputBus = ctx.createGain();
+            ch1FxSend = ctx.createGain(); micFxSend = ctx.createGain(); fileFxSend = ctx.createGain(); combinedFxBus = ctx.createGain();
+
+            masterEfekGain = ctx.createGain(); masterEfekMuteNode = ctx.createGain();
+            masterVolNode = ctx.createGain(); masterMixerMuteNode = ctx.createGain();
+
+            convolverNode = ctx.createConvolver();
+            fxWetGain = ctx.createGain(); fxWetGain.gain.value = 0;
+
+            nyesssFilter = ctx.createBiquadFilter(); nyesssFilter.type = 'highshelf'; nyesssFilter.frequency.value = 12000; nyesssFilter.gain.value = 0;
+
+            eqLow = ctx.createBiquadFilter(); eqLow.type = 'lowshelf'; eqLow.frequency.value = 90; eqLow.gain.value = 0;
+            eqLowMid = ctx.createBiquadFilter(); eqLowMid.type = 'peaking'; eqLowMid.frequency.value = 250; eqLowMid.Q.value = 1.0; eqLowMid.gain.value = 0;
+            eqMid = ctx.createBiquadFilter(); eqMid.type = 'peaking'; eqMid.frequency.value = 1000; eqMid.Q.value = 1.0; eqMid.gain.value = 0;
+            eqHighMid = ctx.createBiquadFilter(); eqHighMid.type = 'peaking'; eqHighMid.frequency.value = 3500; eqHighMid.Q.value = 1.0; eqHighMid.gain.value = 0;
+            eqHigh = ctx.createBiquadFilter(); eqHigh.type = 'highshelf'; eqHigh.frequency.value = 8000; eqHigh.gain.value = 0;
+            airEnhancerFilter = ctx.createBiquadFilter(); airEnhancerFilter.type = 'highshelf'; airEnhancerFilter.frequency.value = 14000; airEnhancerFilter.gain.value = 0;
+            
+            subEnhancerFilter = ctx.createBiquadFilter(); subEnhancerFilter.type = 'lowpass'; subEnhancerFilter.frequency.value = 65;
+            subEnhancerGain = ctx.createGain(); subEnhancerGain.gain.value = 0;
+
+            subHPF = ctx.createBiquadFilter(); subHPF.type = 'highpass';
+            subLPF = ctx.createBiquadFilter(); subLPF.type = 'lowpass';
+            subDelayNode = ctx.createDelay(0.1); subDelayNode.delayTime.value = 0;
+            subGainNode = ctx.createGain();
+
+            lowHPF = ctx.createBiquadFilter(); lowHPF.type = 'highpass';
+            lowLPF = ctx.createBiquadFilter(); lowLPF.type = 'lowpass';
+            lowDelayNode = ctx.createDelay(0.1); lowDelayNode.delayTime.value = 0;
+            lowGainNode = ctx.createGain();
+
+            midHPF = ctx.createBiquadFilter(); midHPF.type = 'highpass';
+            midLPF = ctx.createBiquadFilter(); midLPF.type = 'lowpass';
+            midDelayNode = ctx.createDelay(0.1); midDelayNode.delayTime.value = 0;
+            midGainNode = ctx.createGain();
+
+            highHPF = ctx.createBiquadFilter(); highHPF.type = 'highpass';
+            highLPF = ctx.createBiquadFilter(); highLPF.type = 'lowpass';
+            highDelayNode = ctx.createDelay(0.1); highDelayNode.delayTime.value = 0;
+            highGainNode = ctx.createGain();
+
+            dlmsProcessOut = ctx.createGain();
+            dlmsBypassGain = ctx.createGain();
+            
+            safetyLimiter = ctx.createDynamicsCompressor(); 
+            safetyLimiter.threshold.value = -4; safetyLimiter.knee.value = 0; safetyLimiter.ratio.value = 20; safetyLimiter.attack.value = 0.001; safetyLimiter.release.value = 0.1;
+
+            limiterActiveGain = ctx.createGain();
+            limiterBypassGain = ctx.createGain();
+
+            splitterMain = ctx.createChannelSplitter(2);
+            analyserMainL = ctx.createAnalyser(); analyserMainL.fftSize = 1024;
+            analyserMainR = ctx.createAnalyser(); analyserMainR.fftSize = 1024;
+
+            splitterCh1 = ctx.createChannelSplitter(2);
+            analyserCh1L = ctx.createAnalyser(); analyserCh1L.fftSize = 1024; analyserCh1R = ctx.createAnalyser(); analyserCh1R.fftSize = 1024;
+
+            splitterMic = ctx.createChannelSplitter(2);
+            analyserMicL = ctx.createAnalyser(); analyserMicL.fftSize = 1024; analyserMicR = ctx.createAnalyser(); analyserMicR.fftSize = 1024;
+
+            splitterFile = ctx.createChannelSplitter(2);
+            analyserFileL = ctx.createAnalyser(); analyserFileL.fftSize = 1024; analyserFileR = ctx.createAnalyser(); analyserFileR.fftSize = 1024;
+
+            splitterMEfek = ctx.createChannelSplitter(2);
+            analyserMEfekL = ctx.createAnalyser(); analyserMEfekL.fftSize = 1024; analyserMEfekR = ctx.createAnalyser(); analyserMEfekR.fftSize = 1024;
+
+            analyserEqInput = ctx.createAnalyser(); analyserEqInput.fftSize = 2048;
+
+            updateDSPImpulse(0);
+        }
+    }
+
+    function updateDSPImpulse(presetIndex) {
+        if (!ctx) return;
+        let duration = parseFloat(document.getElementById('fx-rev-decay').value) || 2.5;
+        let decay = 2.0;
+        if (presetIndex >= 15 && presetIndex <= 24) decay = 1.2;
+        else if (presetIndex >= 25 && presetIndex <= 34) decay = 2.8;
+        else if (presetIndex >= 55) decay = 4.5;
+
+        const sampleRate = ctx.sampleRate, length = sampleRate * duration;
+        const impulse = ctx.createBuffer(2, length, sampleRate);
+        const left = impulse.getChannelData(0), right = impulse.getChannelData(1);
+        for (let i = 0; i < length; i++) {
+            const e = Math.pow(1 - i / length, decay);
+            left[i] = (Math.random() * 2 - 1) * e;
+            right[i] = (Math.random() * 2 - 1) * e;
+        }
+        convolverNode.buffer = impulse;
+    }
+
+    function setupAudioRouting() {
+        initAudioContext();
+        if (!sourceNode && mediaEl.src) {
+            try {
+                sourceNode = ctx.createMediaElementSource(mediaEl);
+                sourceNode.connect(fileTrim);
+                fileTrim.connect(fileAgcNode);
+                fileAgcNode.connect(filePanner);
+                filePanner.connect(fileFader);
+                fileFader.connect(fileMuteNode);
+
+                fileMuteNode.connect(splitterFile);
+                splitterFile.connect(analyserFileL, 0);
+                splitterFile.connect(analyserFileR, 1);
+
+                fileMuteNode.connect(summingHeadroom);
+                fileMuteNode.connect(fileFxSend);
+            } catch(e){}
+        }
+
+        summingHeadroom.connect(masterInputBus);
+        ch1FxSend.connect(combinedFxBus);
+        micFxSend.connect(combinedFxBus);
+        fileFxSend.connect(combinedFxBus);
+
+        combinedFxBus.connect(convolverNode);
+        convolverNode.connect(fxWetGain);
+
+        const dspMasterBus = ctx.createGain();
+        fxWetGain.connect(dspMasterBus);
+        
+        dspMasterBus.connect(masterEfekGain);
+        masterEfekGain.connect(masterEfekMuteNode);
+
+        masterEfekMuteNode.connect(splitterMEfek);
+        splitterMEfek.connect(analyserMEfekL, 0);
+        splitterMEfek.connect(analyserMEfekR, 1);
+
+        const preDlmsBus = ctx.createGain();
+        masterInputBus.connect(preDlmsBus);
+        masterEfekMuteNode.connect(preDlmsBus);
+
+        preDlmsBus.connect(analyserEqInput);
+
+        const eq31InNode = ctx.createGain();
+        const eq31OutNode = ctx.createGain();
+        const eq31BypassGain = ctx.createGain();
+
+        preDlmsBus.connect(eq31InNode);
+        preDlmsBus.connect(eq31BypassGain);
+
+        eq31InNode.connect(eq31Filters[0]);
+        for (let i = 0; i < eq31Filters.length - 1; i++) {
+            eq31Filters[i].connect(eq31Filters[i + 1]);
+        }
+        eq31Filters[eq31Filters.length - 1].connect(eq31OutNode);
+
+        const post31EqBus = ctx.createGain();
+        eq31OutNode.connect(post31EqBus);
+        eq31BypassGain.connect(post31EqBus);
+
+        post31EqBus.connect(dynamicEqFilter);
+        dynamicEqFilter.connect(nyesssFilter);
+        
+        nyesssFilter.connect(eqLow);
+        eqLow.connect(eqLowMid);
+        eqLowMid.connect(eqMid);
+        eqMid.connect(eqHighMid);
+        eqHighMid.connect(eqHigh);
+        eqHigh.connect(airEnhancerFilter);
+
+        const crossoverInputBus = ctx.createGain();
+        airEnhancerFilter.connect(crossoverInputBus);
+
+        crossoverInputBus.connect(subEnhancerFilter);
+        subEnhancerFilter.connect(subEnhancerGain);
+        subEnhancerGain.connect(subGainNode);
+
+        crossoverInputBus.connect(subHPF); subHPF.connect(subLPF); subLPF.connect(subDelayNode); subDelayNode.connect(subGainNode);
+        crossoverInputBus.connect(lowHPF); lowHPF.connect(lowLPF); lowLPF.connect(lowDelayNode); lowDelayNode.connect(lowGainNode);
+        crossoverInputBus.connect(midHPF); midHPF.connect(midLPF); midLPF.connect(midDelayNode); midDelayNode.connect(midGainNode);
+        crossoverInputBus.connect(highHPF); highHPF.connect(highLPF); highLPF.connect(highDelayNode); highDelayNode.connect(highGainNode);
+
+        subGainNode.connect(dlmsProcessOut);
+        lowGainNode.connect(dlmsProcessOut);
+        midGainNode.connect(dlmsProcessOut);
+        highGainNode.connect(dlmsProcessOut);
+
+        airEnhancerFilter.connect(dlmsBypassGain);
+
+        const finalMasterBus = ctx.createGain();
+        dlmsProcessOut.connect(finalMasterBus);
+        dlmsBypassGain.connect(finalMasterBus);
+
+        finalMasterBus.connect(masterVolNode);
+        masterVolNode.connect(masterMixerMuteNode);
+        
+        masterMixerMuteNode.connect(safetyLimiter);
+        safetyLimiter.connect(limiterActiveGain);
+
+        masterMixerMuteNode.connect(limiterBypassGain);
+
+        const finalDestinationBus = ctx.createGain();
+        limiterActiveGain.connect(finalDestinationBus);
+        limiterBypassGain.connect(finalDestinationBus);
+
+        finalDestinationBus.connect(globalMasterGain);
+        
+        globalMasterGain.connect(splitterMain);
+        splitterMain.connect(analyserMainL, 0);
+        splitterMain.connect(analyserMainR, 1);
+
+        globalMasterGain.connect(ctx.destination);
+
+        updateModuleStates();
+        applyInitialFaderValues();
+    }
+
+    function applyInitialFaderValues() {
+        const valCh1 = parseFloat(document.getElementById('input-vol').value);
+        const valMic = parseFloat(document.getElementById('mic-vol').value);
+        const valFile = parseFloat(document.getElementById('file-vol').value);
+        const valMefek = parseFloat(document.getElementById('master-efek-fader').value);
+        const valMaster = parseFloat(document.getElementById('master-vol').value);
+
+        if(ch1Fader) ch1Fader.gain.value = valCh1 <= -30 ? 0 : Math.pow(10, valCh1 / 20);
+        if(micFader) micFader.gain.value = valMic <= -30 ? 0 : Math.pow(10, valMic / 20);
+        if(fileFader) fileFader.gain.value = valFile <= -30 ? 0 : Math.pow(10, valFile / 20);
+        if(masterEfekGain) masterEfekGain.gain.value = valMefek <= -30 ? 0 : Math.pow(10, valMefek / 20);
+        if(masterVolNode) masterVolNode.gain.value = valMaster <= -30 ? 0 : Math.pow(10, valMaster / 20);
+    }
+
+    function updateVideoTransform() {
+        const zoom = document.getElementById('video-zoom').value;
+        const x = document.getElementById('video-x').value;
+        const y = document.getElementById('video-y').value;
+        sharedVideoPreview.style.transform = `scale(${zoom}) translate(${x}%, ${y}%)`;
+    }
+
+    function resetVideoCrop() {
+        document.getElementById('video-zoom').value = 1;
+        document.getElementById('video-x').value = 0;
+        document.getElementById('video-y').value = 0;
+        updateVideoTransform();
+    }
+
+    document.getElementById('video-zoom').oninput = updateVideoTransform;
+    document.getElementById('video-x').oninput = updateVideoTransform;
+    document.getElementById('video-y').oninput = updateVideoTransform;
+
+    function toggleNoiseGenerator(type) {
+        initAudioContext();
+        if (ctx.state === 'suspended') {
+            ctx.resume().then(() => executeToggleNoise(type));
+        } else {
+            executeToggleNoise(type);
+        }
+    }
+
+    function executeToggleNoise(type) {
+        setupAudioRouting();
+        const pinkBtn = document.getElementById('btn-pink-noise');
+        const whiteBtn = document.getElementById('btn-white-noise');
+        const statusText = document.getElementById('noise-status-text');
+
+        if (activeNoiseType === type) {
+            if (noiseSourceNode) {
+                try { noiseSourceNode.stop(); } catch(e){}
+                noiseSourceNode.disconnect();
+                noiseSourceNode = null;
+            }
+            activeNoiseType = null;
+            pinkBtn.classList.remove('noise-on');
+            whiteBtn.classList.remove('noise-on');
+            statusText.innerText = "STATUS: OFF";
+            statusText.style.color = "var(--accent-red)";
+            ytPlaceholder.style.display = "block";
+            ytPlaceholder.innerText = "Menampilkan Video dari Sumber Tab / File Aktif...";
+            return;
+        }
+
+        if (noiseSourceNode) {
+            try { noiseSourceNode.stop(); } catch(e){}
+            noiseSourceNode.disconnect();
+            noiseSourceNode = null;
+        }
+
+        activeNoiseType = type;
+        pinkBtn.classList.toggle('noise-on', type === 'pink');
+        whiteBtn.classList.toggle('noise-on', type === 'white');
+        statusText.innerText = `STATUS: ${type.toUpperCase()} NOISE ON`;
+        statusText.style.color = "var(--accent-cyan)";
+
+        const bufferSize = 2 * ctx.sampleRate;
+        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        
+        if (type === 'white') {
+            for (let i = 0; i < bufferSize; i++) {
+                output[i] = (Math.random() * 2 - 1) * 0.08;
+            }
+        } else {
+            let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+            for (let i = 0; i < bufferSize; i++) {
+                let white = Math.random() * 2 - 1;
+                b0 = 0.99886 * b0 + white * 0.0555179;
+                b1 = 0.99332 * b1 + white * 0.0750759;
+                b2 = 0.96900 * b2 + white * 0.1538520;
+                b3 = 0.86650 * b3 + white * 0.3104856;
+                b4 = 0.55000 * b4 + white * 0.5329522;
+                b5 = -0.7616 * b5 - white * 0.0168980;
+                output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+                output[i] *= 0.015;
+                b6 = white * 0.115926;
+            }
+        }
+
+        noiseSourceNode = ctx.createBufferSource();
+        noiseSourceNode.buffer = noiseBuffer;
+        noiseSourceNode.loop = true;
+        noiseSourceNode.connect(fileTrim);
+        noiseSourceNode.start();
+
+        ytPlaceholder.style.display = "block";
+        ytPlaceholder.innerText = `Menghasilkan Sinyal Pengujian: ${type.toUpperCase()} NOISE`;
+    }
+
+    document.getElementById('btn-pink-noise').onclick = () => toggleNoiseGenerator('pink');
+    document.getElementById('btn-white-noise').onclick = () => toggleNoiseGenerator('white');
+
+    document.getElementById('audio-file').addEventListener('change', function(e) {
+        if (noiseSourceNode) { try{noiseSourceNode.stop();}catch(e){} noiseSourceNode = null; activeNoiseType = null; document.getElementById('btn-pink-noise').classList.remove('noise-on'); document.getElementById('btn-white-noise').classList.remove('noise-on'); document.getElementById('noise-status-text').innerText = "STATUS: OFF"; }
+        
+        if (isTabAudioActive) stopTabAudioCapture();
+        
+        initAudioContext();
+        startAudioEngine();
+        
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+
+        playlistFiles = files;
+        currentPlaylistIndex = 0;
+        renderPlaylistUI();
+        loadAndPlayPlaylistIndex(currentPlaylistIndex);
+    });
+
+    function renderPlaylistUI() {
+        const container = document.getElementById('playlist-container');
+        container.innerHTML = '';
+        playlistFiles.forEach((file, index) => {
+            const item = document.createElement('div');
+            item.className = `playlist-item ${index === currentPlaylistIndex ? 'playing' : ''}`;
+            item.innerHTML = `🎵 ${file.name}`;
+            item.onclick = () => {
+                currentPlaylistIndex = index;
+                loadAndPlayPlaylistIndex(currentPlaylistIndex);
+                renderPlaylistUI();
+            };
+            container.appendChild(item);
+        });
+    }
+
+    function loadAndPlayPlaylistIndex(index) {
+        if (playlistFiles.length === 0) return;
+        const file = playlistFiles[index];
+        mediaEl.src = URL.createObjectURL(file);
+        mediaEl.style.display = "block";
+        
+        sharedVideoPreview.style.display = "none";
+        vidZoomControls.style.display = "none";
+        ytPlaceholder.style.display = "block";
+        ytPlaceholder.innerText = `Memutar File Lokal: ${file.name}`;
+
+        setupAudioRouting();
+        mediaEl.play();
+        renderPlaylistUI();
+    }
+
+    mediaEl.onended = function() {
+        if (playlistFiles.length > 0) {
+            currentPlaylistIndex = (currentPlaylistIndex + 1) % playlistFiles.length;
+            loadAndPlayPlaylistIndex(currentPlaylistIndex);
+        }
+    };
+
+    document.getElementById('btn-toggle-tab-audio').addEventListener('click', async function() {
+        if (noiseSourceNode) { try{noiseSourceNode.stop();}catch(e){} noiseSourceNode = null; activeNoiseType = null; document.getElementById('btn-pink-noise').classList.remove('noise-on'); document.getElementById('btn-white-noise').classList.remove('noise-on'); document.getElementById('noise-status-text').innerText = "STATUS: OFF"; }
+        
+        if (!isTabAudioActive) {
+            initAudioContext();
+            startAudioEngine(); 
+            setupAudioRouting();
+
+            try {
+                tabStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: { displaySurface: "browser" }, 
+                    audio: true,
+                    systemAudio: "include"
+                });
+
+                const audioTracks = tabStream.getAudioTracks();
+                if (audioTracks.length === 0) {
+                    alert("Gagal! Pastikan Anda memilih tab dan mencentang opsi 'Share tab audio'.");
+                    tabStream.getTracks().forEach(t => t.stop());
+                    return;
+                }
+
+                sharedVideoPreview.srcObject = tabStream;
+                sharedVideoPreview.style.display = "block";
+                vidZoomControls.style.display = "block";
+                ytPlaceholder.style.display = "none";
+
+                tabStreamNode = ctx.createMediaStreamSource(tabStream);
+                tabStreamNode.connect(ch1Trim);
+                ch1Trim.connect(ch1Panner);
+                ch1Panner.connect(ch1Fader);
+                ch1Fader.connect(ch1MuteNode);
+
+                ch1MuteNode.connect(splitterCh1);
+                splitterCh1.connect(analyserCh1L, 0);
+                splitterCh1.connect(analyserCh1R, 1);
+
+                ch1MuteNode.connect(summingHeadroom);
+                ch1MuteNode.connect(ch1FxSend);
+
+                tabStream.getTracks().forEach(track => {
+                    track.onended = () => stopTabAudioCapture();
+                });
+
+                isTabAudioActive = true;
+                this.classList.add('active');
+                this.innerText = "🛑 HENTIKAN TANGKAPAN TAB";
+            } catch (err) {
+                console.warn("Penangkapan Tab Dibatalkan:", err);
+            }
+        } else {
+            stopTabAudioCapture();
+        }
+    });
+
+    function stopTabAudioCapture() {
+        if (tabStream) {
+            tabStream.getTracks().forEach(track => track.stop());
+            tabStream = null;
+        }
+        if (tabStreamNode) {
+            try { tabStreamNode.disconnect(); } catch(e){}
+            tabStreamNode = null;
+        }
+        sharedVideoPreview.srcObject = null;
+        sharedVideoPreview.style.display = "none";
+        vidZoomControls.style.display = "none";
+        ytPlaceholder.style.display = "block";
+        ytPlaceholder.innerText = "Menampilkan Video dari Sumber Tab / File Aktif...";
+        
+        isTabAudioActive = false;
+        const btn = document.getElementById('btn-toggle-tab-audio');
+        btn.classList.remove('active');
+        btn.innerText = "🖥️ TANGKAP TAB & VIDEO";
+    }
+
+    document.getElementById('btn-toggle-mic').onclick = async function() {
+        if (noiseSourceNode) { try{noiseSourceNode.stop();}catch(e){} noiseSourceNode = null; activeNoiseType = null; document.getElementById('btn-pink-noise').classList.remove('noise-on'); document.getElementById('btn-white-noise').classList.remove('noise-on'); document.getElementById('noise-status-text').innerText = "STATUS: OFF"; }
+        startAudioEngine(); setupAudioRouting();
+        if (!isMicActive) {
+            const selectedDeviceId = document.getElementById('device-select').value;
+            const constraints = { audio: selectedDeviceId ? { deviceId: { exact: selectedDeviceId } } : true };
+            try {
+                micStream = await navigator.mediaDevices.getUserMedia(constraints);
+                micStreamNode = ctx.createMediaStreamSource(micStream);
+                
+                micStreamNode.connect(feedbackNotch);
+                feedbackNotch.connect(autoFeedbackNotch);
+                autoFeedbackNotch.connect(gateGain);
+                gateGain.connect(micTrim);
+                micTrim.connect(micPanner);
+                micPanner.connect(micFader);
+                micFader.connect(micMuteNode);
+
+                micMuteNode.connect(splitterMic);
+                splitterMic.connect(analyserMicL, 0);
+                splitterMic.connect(analyserMicR, 1);
+
+                micMuteNode.connect(summingHeadroom);
+                micMuteNode.connect(micFxSend);
+
+                isMicActive = true; 
+                this.classList.add('active'); 
+                this.innerText = "🛑 MATIKAN LIVE MIC";
+            } catch (err) { alert("Gagal mengaktifkan peranti input fisik!"); }
+        } else {
+            if (micStream) micStream.getTracks().forEach(track => track.stop());
+            if (micStreamNode) micStreamNode.disconnect();
+            isMicActive = false; 
+            this.classList.remove('active'); 
+            this.innerText = "🔴 LIVE MIC INPUT";
+        }
+    };
+
+    function processAdvancedDSP() {
+        requestAnimationFrame(processAdvancedDSP);
+        if (!ctx) return;
+
+        if (analyserMicL && isMicActive) {
+            const array = new Float32Array(analyserMicL.fftSize);
+            analyserMicL.getFloatTimeDomainData(array);
+
+            let sum = 0;
+            for (let i = 0; i < array.length; i++) sum += array[i] * array[i];
+            let rms = Math.sqrt(sum / array.length);
+            let avgDb = 20 * Math.log10(Math.max(rms, 0.00001));
+
+            if (states.feedback) {
+                const threshDb = parseFloat(document.getElementById('gate-thresh').value);
+                if (avgDb < threshDb) {
+                    gateGain.gain.setTargetAtTime(0.05, ctx.currentTime, 0.08);
+                } else {
+                    gateGain.gain.setTargetAtTime(1.0, ctx.currentTime, 0.02);
+                }
+            } else {
+                if(gateGain) gateGain.gain.value = 1.0;
+            }
+
+            if (states.autoFeedback && autoFeedbackNotch) {
+                const freqBins = new Uint8Array(analyserMicL.frequencyBinCount);
+                analyserMicL.getByteFrequencyData(freqBins);
+                let peakVal = 0, peakIdx = 0;
+                for (let i = 5; i < freqBins.length; i++) {
+                    if (freqBins[i] > peakVal) {
+                        peakVal = freqBins[i];
+                        peakIdx = i;
+                    }
+                }
+                if (peakVal > 230) {
+                    let nyquist = ctx.sampleRate / 2;
+                    let detectedFreq = (peakIdx / freqBins.length) * nyquist;
+                    if (detectedFreq > 300 && detectedFreq < 7000) {
+                        autoFeedbackNotch.frequency.setTargetAtTime(detectedFreq, ctx.currentTime, 0.1);
+                        autoFeedbackNotch.gain.setTargetAtTime(-15.0, ctx.currentTime, 0.1);
+                    }
+                } else {
+                    autoFeedbackNotch.gain.setTargetAtTime(0, ctx.currentTime, 0.5);
+                }
+            } else if (autoFeedbackNotch) {
+                autoFeedbackNotch.gain.value = 0;
+            }
+        }
+
+        if (states.dynamicEq && analyserEqInput && dynamicEqFilter) {
+            const freqData = new Uint8Array(analyserEqInput.frequencyBinCount);
+            analyserEqInput.getByteFrequencyData(freqData);
+            
+            let sumVal = 0, count = 0;
+            let startBin = Math.floor(150 / (ctx.sampleRate / 2) * freqData.length);
+            let endBin = Math.floor(600 / (ctx.sampleRate / 2) * freqData.length);
+            for (let i = startBin; i <= endBin; i++) {
+                sumVal += freqData[i];
+                count++;
+            }
+            let avgEnergy = sumVal / (count || 1);
+            let dynThresh = parseFloat(document.getElementById('dyn-thresh').value);
+            let energyDb = (avgEnergy / 255) * 40 - 30;
+
+            if (energyDb > dynThresh) {
+                let attenuation = Math.max(-10, (dynThresh - energyDb) * 0.6);
+                dynamicEqFilter.gain.setTargetAtTime(attenuation, ctx.currentTime, 0.05);
+            } else {
+                dynamicEqFilter.gain.setTargetAtTime(0, ctx.currentTime, 0.1);
+            }
+        } else if (dynamicEqFilter) {
+            dynamicEqFilter.gain.value = 0;
+        }
+    }
+    processAdvancedDSP();
+
+    async function populateAudioDevices() {
+        try {
+            await navigator.mediaDevices.getUserMedia({ audio: true });
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const deviceSelect = document.getElementById('device-select');
+            deviceSelect.innerHTML = '<option value="">-- Deteksi Input --</option>';
+
+            devices.filter(d => d.kind === 'audioinput').forEach((d, index) => {
+                const opt = document.createElement('option');
+                opt.value = d.deviceId;
+                opt.innerText = d.label || `Audio Input ${index + 1}`;
+                deviceSelect.appendChild(opt);
+            });
+        } catch (err) { console.warn("Izin Input Audio Ditolak:", err); }
+    }
+    populateAudioDevices();
+
+    const eq31Holder = document.getElementById('eq31-sliders-holder');
+    const totalEqLEDs = 8;
+    eq31Frequencies.forEach((freq, idx) => {
+        const bandEl = document.createElement('div');
+        bandEl.classList.add('eq-band');
+        
+        let labelText = freq >= 1000 ? (freq/1000).toFixed(freq%1000 !== 0 && freq < 10000 ? 1 : 0) + 'k' : freq;
+
+        let vuHtml = '';
+        for(let i = 0; i < totalEqLEDs; i++) {
+            let colorClass = i < 5 ? 'green' : (i < 7 ? 'yellow' : 'red');
+            vuHtml += `<div class="eq-vu-led ${colorClass}" id="eq-vu-${idx}-${i}"></div>`;
+        }
+
+        bandEl.innerHTML = `
+            <div class="eq-freq-title">${labelText}</div>
+            <div class="eq-slider-and-vu">
+                <div class="eq-slider-wrapper">
+                    <input type="range" class="eq-slider" id="eq31-band-${idx}" min="-12" max="12" step="0.5" value="0" data-default="0">
+                </div>
+                <div class="eq-vu-wrapper" id="eq-vu-bar-${idx}">
+                    ${vuHtml}
+                </div>
+            </div>
+            <div class="eq-val" id="eq31-val-${idx}">0.0dB</div>
+        `;
+        eq31Holder.appendChild(bandEl);
+
+        const sliderEl = bandEl.querySelector('input');
+        eqSliders.push(sliderEl);
+
+        setTimeout(() => {
+            sliderEl.oninput = function(e) {
+                const val = parseFloat(e.target.value);
+                if (eq31Filters[idx]) eq31Filters[idx].gain.value = val;
+                document.getElementById(`eq31-val-${idx}`).innerText = (val > 0 ? '+' : '') + val.toFixed(1) + 'dB';
+            };
+        }, 50);
+    });
+
+    document.getElementById('eq-preset-select').onchange = function(e) {
+        const type = e.target.value;
+        if (!type) return;
+
+        let targetGains = new Array(31).fill(0);
+
+        if (type === 'flat') {
+            targetGains.fill(0);
+        } else if (type === 'horeg') {
+            targetGains = [
+                6.0, 6.5, 7.0, 6.5, 5.5, 4.0, 2.0, 0.0, -1.5, -2.5, -2.0, -1.0, 0.5, 2.0, 3.5, 
+                2.5, 1.0, 0.0, 1.0, 2.5, 4.0, 5.0, 6.0, 6.5, 7.0, 7.0, 7.5, 8.0, 7.5, 7.0, 6.5
+            ];
+            document.getElementById('sub-hpf').value = 25;
+            document.getElementById('sub-lpf').value = 100;
+            document.getElementById('sub-gain').value = 4.0;
+            document.getElementById('high-gain').value = 3.0;
+            document.getElementById('sub-enhancer').value = 4.0;
+            updateDLMSParams();
+        } else if (type === 'hajatan') {
+            targetGains = [
+                3, 3, 2.5, 2, 1.5, 1, 0, -1, -1.5, -2, -1, 0, 1, 1.5, 2, 
+                2, 2.5, 3, 3.5, 4, 3.5, 3, 2.5, 2, 2.5, 3, 3.5, 4, 4, 3.5, 3
+            ];
+        } else if (type === 'ceksound') {
+            targetGains = [
+                4, 4, 3.5, 3, 2, 1, 0, -1, -2, -2.5, -3, -2.5, -2, -1, 0, 
+                0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 4.5, 4.5, 4.5, 4, 4, 3.5
+            ];
+        } else if (type === 'vocal') {
+            targetGains = [
+                -4, -3.5, -3, -2, -1, 0, 0, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 
+                4, 4, 3.5, 3, 2, 1, 0.5, 0, -0.5, -1, -1.5, -2, -2.5, -3, -3, -3
+            ];
+        }
+
+        eqSliders.forEach((slider, idx) => {
+            slider.value = targetGains[idx];
+            slider.dispatchEvent(new Event('input'));
+        });
+    };
+
+    const totalLEDs = 10;
+    document.querySelectorAll('.vu-meter-wrapper').forEach(wrapper => {
+        const bar = wrapper.querySelector('.vu-led-bar');
+        if(!bar) return;
+        for (let i = 0; i < totalLEDs; i++) {
+            const led = document.createElement('div');
+            led.classList.add('vu-led');
+            if (i < 6) led.classList.add('green');
+            else if (i < 8) led.classList.add('yellow');
+            else led.classList.add('red');
+            bar.appendChild(led);
+        }
+    });
+
+    function getAnalyserLevel(analyser) {
+        if (!analyser) return 0;
+        const array = new Float32Array(analyser.fftSize);
+        analyser.getFloatTimeDomainData(array);
+        let sum = 0;
+        for (let i = 0; i < array.length; i++) sum += array[i] * array[i];
+        let rms = Math.sqrt(sum / array.length);
+        if (rms < 0.00001) return 0;
+        let db = 20 * Math.log10(rms);
+        let minDb = -45, maxDb = 3;
+        let percent = (db - minDb) / (maxDb - minDb);
+        return Math.max(0, Math.min(1, percent));
+    }
+
+    const peakStore = {};
+    function updateSingleLedBar(barId, peakId, levelPercent) {
+        const bar = document.getElementById(barId);
+        if (!bar) return;
+        let activeCount = Math.round(levelPercent * totalLEDs);
+        bar.querySelectorAll('.vu-led').forEach((led, idx) => {
+            if (idx < activeCount) led.classList.add('on');
+            else led.classList.remove('on');
+        });
+
+        const peakDot = document.getElementById(peakId);
+        if(peakDot) {
+            if (!peakStore[peakId]) peakStore[peakId] = { val: 0, hold: 0 };
+            let p = peakStore[peakId];
+            
+            if (levelPercent > p.val) {
+                p.val = levelPercent;
+                p.hold = 35;
+            } else {
+                if (p.hold > 0) {
+                    p.hold--;
+                } else {
+                    p.val -= 0.03;
+                    if (p.val < 0) p.val = 0;
+                }
+            }
+            let topPosPx = (1 - p.val) * bar.clientHeight;
+            peakDot.style.top = `${Math.max(0, topPosPx - 3)}px`;
+            peakDot.style.opacity = p.val > 0.05 ? '1' : '0';
+        }
+    }
+
+    function updateVUMeters() {
+        requestAnimationFrame(updateVUMeters);
+        if (!analyserMainL) {
+            document.querySelectorAll('.vu-led').forEach(led => led.classList.remove('on'));
+            document.querySelectorAll('.eq-vu-led').forEach(led => led.classList.remove('on'));
+            document.querySelectorAll('.vu-peak-dot').forEach(dot => dot.style.opacity = '0');
+            return;
+        }
+        updateSingleLedBar('main-vu-l', 'peak-main-vu-l', getAnalyserLevel(analyserMainL));
+        updateSingleLedBar('main-vu-r', 'peak-main-vu-r', getAnalyserLevel(analyserMainR));
+        
+        updateSingleLedBar('vu-ch1-mono', 'peak-vu-ch1-mono', (getAnalyserLevel(analyserCh1L) + getAnalyserLevel(analyserCh1R)) / 2);
+        updateSingleLedBar('vu-mic-mono', 'peak-vu-mic-mono', (getAnalyserLevel(analyserMicL) + getAnalyserLevel(analyserMicR)) / 2);
+        updateSingleLedBar('vu-file-mono', 'peak-vu-file-mono', (getAnalyserLevel(analyserFileL) + getAnalyserLevel(analyserFileR)) / 2);
+        updateSingleLedBar('vu-mefek-mono', 'peak-vu-mefek-mono', (getAnalyserLevel(analyserMEfekL) + getAnalyserLevel(analyserMEfekR)) / 2);
+        updateSingleLedBar('vu-mmixer-mono', 'peak-vu-mmixer-mono', (getAnalyserLevel(analyserMainL) + getAnalyserLevel(analyserMainR)) / 2);
+
+        if (states.eq31 && analyserEqInput) {
+            const freqBinsCount = analyserEqInput.frequencyBinCount;
+            const freqData = new Uint8Array(freqBinsCount);
+            analyserEqInput.getByteFrequencyData(freqData);
+
+            eq31Frequencies.forEach((f, idx) => {
+                let binIndex = Math.floor((idx / eq31Frequencies.length) * freqBinsCount);
+                let binVal = (freqData[binIndex] || 0) / 255; 
+                let activeEqLEDs = Math.round(binVal * totalEqLEDs);
+
+                for (let i = 0; i < totalEqLEDs; i++) {
+                    const ledEl = document.getElementById(`eq-vu-${idx}-${i}`);
+                    if (ledEl) {
+                        if (i < activeEqLEDs) ledEl.classList.add('on');
+                        else ledEl.classList.remove('on');
+                    }
+                }
+            });
+        } else {
+            document.querySelectorAll('.eq-vu-led').forEach(led => led.classList.remove('on'));
+        }
+    }
+    updateVUMeters();
+
+    function updateKnobUI(knobEl, val) {
+        const inputId = knobEl.getAttribute('data-id');
+        const inputEl = document.getElementById(inputId);
+        const min = parseFloat(inputEl.min), max = parseFloat(inputEl.max);
+        const percent = (val - min) / (max - min);
+        
+        const angle = -135 + (percent * 270);
+        knobEl.querySelector('.knob-pointer').style.transform = `rotate(${angle}deg)`;
+
+        const ringProg = document.getElementById(`ring-${inputId}`);
+        if(ringProg) {
+            const circumference = 75.4;
+            const dashOffset = circumference - (percent * circumference);
+            ringProg.style.strokeDashoffset = dashOffset;
+        }
+    }
+
+    document.querySelectorAll('.knob').forEach(knob => {
+        let isDragging = false, startY = 0, startVal = 0;
+        const inputId = knob.getAttribute('data-id');
+        const inputEl = document.getElementById(inputId);
+
+        const onStart = (e) => {
+            isDragging = true; startY = e.clientY || e.touches[0].clientY; startVal = parseFloat(inputEl.value);
+            document.addEventListener('mousemove', onMove); document.addEventListener('touchmove', onMove, { passive: false });
+            document.addEventListener('mouseup', onEnd); document.addEventListener('touchend', onEnd);
+        };
+
+        const onMove = (e) => {
+            if (!isDragging) return;
+            if (e.preventDefault) e.preventDefault();
+            const currentY = e.clientY || e.touches[0].clientY;
+            const deltaY = startY - currentY;
+            const min = parseFloat(inputEl.min), max = parseFloat(inputEl.max), step = parseFloat(inputEl.step) || 0.1;
+            let newVal = startVal + (deltaY / 120) * (max - min);
+            newVal = Math.round(Math.max(min, Math.min(max, newVal)) / step) * step;
+            inputEl.value = newVal; inputEl.dispatchEvent(new Event('input'));
+            updateKnobUI(knob, newVal);
+        };
+
+        const onEnd = () => { isDragging = false; document.removeEventListener('mousemove', onMove); document.removeEventListener('touchmove', onMove); };
+
+        knob.addEventListener('mousedown', onStart);
+        knob.addEventListener('touchstart', onStart, { passive: false });
+        knob.addEventListener('wheel', (e) => {
+            e.preventDefault(); const step = parseFloat(inputEl.step) || 0.5;
+            let newVal = parseFloat(inputEl.value) + (e.deltaY < 0 ? step : -step);
+            newVal = Math.max(parseFloat(inputEl.min), Math.min(parseFloat(inputEl.max), newVal));
+            inputEl.value = newVal; inputEl.dispatchEvent(new Event('input'));
+            updateKnobUI(knob, newVal);
+        });
+        updateKnobUI(knob, parseFloat(inputEl.value));
+    });
+
+    function syncAllKnobs() {
+        document.querySelectorAll('.knob').forEach(knob => {
+            const inputEl = document.getElementById(knob.getAttribute('data-id'));
+            if (inputEl) updateKnobUI(knob, parseFloat(inputEl.value));
+        });
+    }
+
+    document.getElementById('btn-fullscreen').onclick = function() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => alert(`Error: ${err.message}`));
+            this.innerHTML = `<span class="led-dot"></span> ⛶ EXIT FULLSCREEN`;
+        } else {
+            if (document.exitFullscreen) document.exitFullscreen();
+            this.innerHTML = `<span class="led-dot"></span> ⛶ FULLSCREEN`;
+        }
+    };
+
+    function updateModuleStates() {
+        if (!ctx) return;
+        const t = ctx.currentTime, rampTime = 0.05;
+        
+        if(globalMasterGain) globalMasterGain.gain.setTargetAtTime(1, t, rampTime);
+
+        document.getElementById('subpanel-input-content').classList.toggle('disabled-module', !states.input);
+
+        const currentMixLvl = parseFloat(document.getElementById('fx-mix').value);
+        if(fxWetGain) fxWetGain.gain.setTargetAtTime(states.dsp ? currentMixLvl : 0, t, rampTime);
+        document.getElementById('subpanel-dsp-content').classList.toggle('disabled-module', !states.dsp);
+
+        const currentNyesssVal = parseFloat(document.getElementById('input-nyesss-gain').value);
+        if(nyesssFilter) nyesssFilter.gain.setTargetAtTime(states.nyesss ? currentNyesssVal : 0, t, rampTime);
+
+        if(dlmsProcessOut) dlmsProcessOut.gain.setTargetAtTime(states.dlms ? 1 : 0, t, rampTime);
+        if(dlmsBypassGain) dlmsBypassGain.gain.setTargetAtTime(states.dlms ? 0 : 1, t, rampTime);
+
+        document.getElementById('eq31-sliders-holder').classList.toggle('disabled-module', !states.eq31);
+        
+        if (feedbackNotch) feedbackNotch.Q.value = !states.feedback ? 0.001 : 8.0;
+
+        if(ch1MuteNode) ch1MuteNode.gain.setTargetAtTime(mutes.ch1 ? 0 : 1, t, rampTime);
+        if(micMuteNode) micMuteNode.gain.setTargetAtTime(mutes.mic ? 0 : 1, t, rampTime);
+        if(fileMuteNode) fileMuteNode.gain.setTargetAtTime(mutes.file ? 0 : 1, t, rampTime);
+        if(masterEfekMuteNode) masterEfekMuteNode.gain.setTargetAtTime(mutes.mefek ? 0 : 1, t, rampTime);
+        if(masterMixerMuteNode) masterMixerMuteNode.gain.setTargetAtTime(mutes.mmixer ? 0 : 1, t, rampTime);
+
+        if(ch1FxSend) ch1FxSend.gain.setTargetAtTime(states.ch1Fx ? 1 : 0, t, rampTime);
+        if(micFxSend) micFxSend.gain.setTargetAtTime(states.micFx ? 1 : 0, t, rampTime);
+        if(fileFxSend) fileFxSend.gain.setTargetAtTime(states.fileFx ? 1 : 0, t, rampTime);
+
+        const isLimiterOn = states.limiter;
+        if(limiterActiveGain) limiterActiveGain.gain.setTargetAtTime(isLimiterOn ? 1 : 0, t, rampTime);
+        if(limiterBypassGain) limiterBypassGain.gain.setTargetAtTime(isLimiterOn ? 0 : 1, t, rampTime);
+
+        if (fileAgcNode) {
+            if (states.agc) {
+                fileAgcNode.threshold.setTargetAtTime(-20, t, rampTime);
+                fileAgcNode.ratio.setTargetAtTime(3, t, rampTime);
+            } else {
+                fileAgcNode.threshold.setTargetAtTime(0, t, rampTime);
+                fileAgcNode.ratio.setTargetAtTime(1, t, rampTime);
+            }
+        }
+
+        const anySolo = dlmsStates.subSolo || dlmsStates.lowSolo || dlmsStates.midSolo || dlmsStates.highSolo;
+
+        let subActive = states.dlms && !dlmsStates.subMute && (!anySolo || dlmsStates.subSolo);
+        let lowActive = states.dlms && !dlmsStates.lowMute && (!anySolo || dlmsStates.lowSolo);
+        let midActive = states.dlms && !dlmsStates.midMute && (!anySolo || dlmsStates.midSolo);
+        let highActive = states.dlms && !dlmsStates.highMute && (!anySolo || dlmsStates.highSolo);
+
+        if(subGainNode) subGainNode.gain.setTargetAtTime(subActive ? Math.pow(10, document.getElementById('sub-gain').value / 20) : 0, t, rampTime);
+        if(lowGainNode) lowGainNode.gain.setTargetAtTime(lowActive ? Math.pow(10, document.getElementById('low-gain').value / 20) : 0, t, rampTime);
+        if(midGainNode) midGainNode.gain.setTargetAtTime(midActive ? Math.pow(10, document.getElementById('mid-gain').value / 20) : 0, t, rampTime);
+        if(highGainNode) highGainNode.gain.setTargetAtTime(highActive ? Math.pow(10, document.getElementById('high-gain').value / 20) : 0, t, rampTime);
+
+        mediaEl.loop = states.loop;
+        document.getElementById('graph-legend').style.display = states.graph ? 'flex' : 'none';
+    }
+
+    const toggleModule = (modName, btnId) => {
+        states[modName] = !states[modName];
+        const btn = document.getElementById(btnId);
+        
+        if(btn.classList.contains('mini-sw')) {
+            btn.classList.toggle('active', states[modName]);
+            if(modName === 'agc') {
+                btn.innerHTML = `<span class="led-dot"></span> AGC: ${states[modName] ? 'ON' : 'OFF'}`;
+            } else {
+                btn.innerHTML = `<span class="led-dot"></span> ${modName === 'input' ? (states[modName] ? 'IN ON' : 'IN OFF') : (states[modName] ? 'ON' : 'OFF')}`;
+            }
+        } else if(modName === 'loop') {
+            btn.classList.toggle('loop-active', states.loop);
+            btn.innerHTML = `<span class="led-dot"></span> 🔁 LOOP: ${states.loop ? 'ON' : 'OFF'}`;
+        } else if(modName === 'graph') {
+            btn.classList.toggle('graph-active', states.graph);
+            btn.innerHTML = `<span class="led-dot"></span> 📈 GRAFIK: ${states.graph ? 'ON' : 'OFF'}`;
+        } else if(modName === 'feedback') {
+            btn.classList.toggle('fb-active', states.feedback);
+            btn.innerHTML = `<span class="led-dot"></span> ${states.feedback ? 'FB NOTCH ON' : 'FB NOTCH OFF'}`;
+        } else if(modName === 'autoFeedback') {
+            btn.classList.toggle('auto-fb-active', states.autoFeedback);
+            btn.innerHTML = `<span class="led-dot"></span> ${states.autoFeedback ? 'AUTO FEEDBACK ON' : 'AUTO FEEDBACK OFF'}`;
+        } else if(modName === 'dynamicEq') {
+            btn.classList.toggle('dyn-active', states.dynamicEq);
+            btn.innerHTML = `<span class="led-dot"></span> DYNAMIC EQ ${states.dynamicEq ? 'ON' : 'OFF'}`;
+        } else if(modName === 'eq31') {
+            btn.classList.toggle('eq31-active', states.eq31);
+            btn.innerHTML = `<span class="led-dot"></span> EQ 31 ${states.eq31 ? 'ON' : 'OFF'}`;
+        } else if(modName === 'limiter') {
+            btn.classList.toggle('limiter-active', states.limiter);
+            btn.innerHTML = `<span class="led-dot"></span> LIMITER ${states.limiter ? 'ON' : 'OFF'}`;
+        } else {
+            btn.classList.toggle('active', states[modName]);
+            if(modName === 'nyesss') btn.classList.toggle('nyesss-active', states[modName]);
+            btn.innerHTML = `<span class="led-dot"></span> ${modName.toUpperCase()} ${states[modName] ? 'ON' : 'OFF'}`;
+        }
+
+        if (ctx && ctx.state === 'running') updateModuleStates();
+    };
+
+    const swInputBtn = document.getElementById('sw-input');
+    swInputBtn.classList.add('active');
+    swInputBtn.innerHTML = `<span class="led-dot"></span> IN ON`;
+
+    const swAgcBtn = document.getElementById('sw-agc');
+    swAgcBtn.classList.add('active');
+    swAgcBtn.innerHTML = `<span class="led-dot"></span> AGC: ON`;
+
+    const swLimiterBtn = document.getElementById('sw-limiter');
+    swLimiterBtn.classList.add('limiter-active');
+    swLimiterBtn.innerHTML = `<span class="led-dot"></span> LIMITER ON`;
+
+    document.getElementById('sw-input').onclick = () => toggleModule('input', 'sw-input');
+    document.getElementById('sw-agc').onclick = () => toggleModule('agc', 'sw-agc');
+    document.getElementById('sw-limiter').onclick = () => toggleModule('limiter', 'sw-limiter');
+    document.getElementById('sw-feedback').onclick = () => toggleModule('feedback', 'sw-feedback');
+    document.getElementById('sw-autofb').onclick = () => toggleModule('autoFeedback', 'sw-autofb');
+    document.getElementById('sw-dynamic-eq').onclick = () => toggleModule('dynamicEq', 'sw-dynamic-eq');
+    document.getElementById('sw-dsp').onclick = () => toggleModule('dsp', 'sw-dsp');
+    document.getElementById('sw-dlms').onclick = () => toggleModule('dlms', 'sw-dlms');
+    document.getElementById('sw-eq31').onclick = () => toggleModule('eq31', 'sw-eq31');
+    document.getElementById('sw-nyesss').onclick = () => toggleModule('nyesss', 'sw-nyesss');
+    document.getElementById('sw-loop').onclick = () => toggleModule('loop', 'sw-loop');
+    document.getElementById('sw-graph').onclick = () => toggleModule('graph', 'sw-graph');
+
+    const bindDlmsAction = (band, type) => {
+        const btnId = `dlms-${type}-${band}`;
+        document.getElementById(btnId).onclick = function() {
+            const stateKey = `${band}${type.charAt(0).toUpperCase() + type.slice(1)}`;
+            dlmsStates[stateKey] = !dlmsStates[stateKey];
+            this.classList.toggle('active', dlmsStates[stateKey]);
+            if (ctx && ctx.state === 'running') updateModuleStates();
+        };
+    };
+    bindDlmsAction('sub', 'solo');
+    bindDlmsAction('sub', 'mute');
+    bindDlmsAction('low', 'solo');
+    bindDlmsAction('low', 'mute');
+    bindDlmsAction('mid', 'solo');
+    bindDlmsAction('mid', 'mute');
+    bindDlmsAction('high', 'solo');
+    bindDlmsAction('high', 'mute');
+
+    const bindMuteBtn = (key, btnId) => {
+        document.getElementById(btnId).onclick = function() {
+            mutes[key] = !mutes[key];
+            this.classList.toggle('active', mutes[key]);
+            if (ctx && ctx.state === 'running') updateModuleStates();
+        };
+    };
+    bindMuteBtn('ch1', 'btn-mute-ch1');
+    bindMuteBtn('mic', 'btn-mute-mic');
+    bindMuteBtn('file', 'btn-mute-file');
+    bindMuteBtn('mefek', 'btn-mute-mefek');
+    bindMuteBtn('mmixer', 'btn-mute-mmixer');
+
+    const bindFxRouteBtn = (key, btnId) => {
+        document.getElementById(btnId).onclick = function() {
+            states[key] = !states[key];
+            this.classList.toggle('active', states[key]);
+            this.innerText = states[key] ? '[FX] ON' : '[FX] OFF';
+            if (ctx && ctx.state === 'running') updateModuleStates();
+        };
+    };
+    bindFxRouteBtn('ch1Fx', 'btn-fx-ch1');
+    bindFxRouteBtn('micFx', 'btn-fx-mic');
+    bindFxRouteBtn('fileFx', 'btn-fx-file');
+
+    const formatDbText = val => {
+        if (val <= -30) return 'OFF (-∞)';
+        return (val > 0 ? '+' : '') + parseFloat(val).toFixed(1) + ' dB';
+    };
+
+    const startAudioEngine = () => {
+        initAudioContext();
+        if (ctx.state === 'suspended') {
+            ctx.resume().then(() => {
+                const btn = document.getElementById('btn-start-engine'); btn.innerText = "✅ AUDIO ENGINE READY"; btn.classList.add('active');
+                setupAudioRouting();
+            });
+        } else {
+            setupAudioRouting();
+        }
+    };
+
+    document.getElementById('btn-start-engine').addEventListener('click', startAudioEngine);
+
+    document.getElementById('input-trim').oninput = (e) => { 
+        if(ch1Trim) ch1Trim.gain.value = Math.pow(10, e.target.value / 20); 
+        if(fileTrim) fileTrim.gain.value = Math.pow(10, e.target.value / 20); 
+        document.getElementById('val-trim').innerText = formatDbText(e.target.value); 
+    };
+    document.getElementById('input-pan').oninput = (e) => { 
+        if(ch1Panner) ch1Panner.pan.value = e.target.value; 
+        if(filePanner) filePanner.pan.value = e.target.value; 
+        document.getElementById('val-pan').innerText = e.target.value == 0 ? 'Center' : e.target.value; 
+    };
+
+    document.getElementById('input-vol').oninput = (e) => {
+        const val = parseFloat(e.target.value);
+        if(ch1Fader) ch1Fader.gain.value = (val <= -30) ? 0 : Math.pow(10, val / 20);
+        document.getElementById('val-vol').innerText = formatDbText(val);
+    };
+    
+    document.getElementById('mic-vol').oninput = (e) => {
+        const val = parseFloat(e.target.value);
+        if(micFader) micFader.gain.value = (val <= -30) ? 0 : Math.pow(10, val / 20);
+        document.getElementById('val-mic-vol').innerText = formatDbText(val);
+    };
+
+    document.getElementById('file-vol').oninput = (e) => {
+        const val = parseFloat(e.target.value);
+        if(fileFader) fileFader.gain.value = (val <= -30) ? 0 : Math.pow(10, val / 20);
+        document.getElementById('val-file-vol').innerText = formatDbText(val);
+    };
+    
+    document.getElementById('master-efek-fader').oninput = (e) => {
+        const val = parseFloat(e.target.value);
+        if(masterEfekGain) masterEfekGain.gain.value = (val <= -30) ? 0 : Math.pow(10, val / 20);
+        document.getElementById('val-master-efek').innerText = formatDbText(val);
+    };
+
+    document.getElementById('master-vol').oninput = (e) => {
+        const val = parseFloat(e.target.value);
+        if(masterVolNode) masterVolNode.gain.value = (val <= -30) ? 0 : Math.pow(10, val / 20);
+        document.getElementById('val-master-vol').innerText = formatDbText(val);
+    };
+
+    document.getElementById('fb-notch-freq').oninput = (e) => {
+        const val = parseFloat(e.target.value); 
+        if(feedbackNotch) feedbackNotch.frequency.value = val;
+        document.getElementById('val-fb-notch').innerText = val >= 1000 ? (val/1000).toFixed(1) + ' kHz' : val + ' Hz';
+    };
+    document.getElementById('fb-notch-depth').oninput = (e) => { 
+        if(feedbackNotch) feedbackNotch.gain.value = parseFloat(e.target.value); 
+        document.getElementById('val-fb-depth').innerText = formatDbText(e.target.value); 
+    };
+    document.getElementById('gate-thresh').oninput = (e) => { document.getElementById('val-gate-thresh').innerText = e.target.value + ' dB'; };
+    document.getElementById('dyn-thresh').oninput = (e) => { document.getElementById('val-dyn-thresh').innerText = e.target.value + ' dB'; };
+
+    document.getElementById('fx-rev-decay').oninput = (e) => { 
+        document.getElementById('val-rev-decay').innerText = e.target.value + 's'; 
+        updateDSPImpulse(parseInt(document.getElementById('dsp-preset-select').value));
+    };
+
+    document.getElementById('fx-mix').oninput = (e) => {
+        const pct = Math.round(e.target.value * 100) + '%';
+        document.getElementById('val-fxmix').innerText = pct;
+        if (states.dsp && fxWetGain && ctx) fxWetGain.gain.setTargetAtTime(parseFloat(e.target.value), ctx.currentTime, 0.02);
+    };
+
+    document.getElementById('input-nyesss-gain').oninput = (e) => {
+        document.getElementById('val-nyesss-gain').innerText = formatDbText(e.target.value);
+        if (states.nyesss && nyesssFilter && ctx) nyesssFilter.gain.setTargetAtTime(parseFloat(e.target.value), ctx.currentTime, 0.02);
+    };
+
+    const updateDLMSParams = () => {
+        if(subHPF) subHPF.frequency.value = document.getElementById('sub-hpf').value;
+        if(subLPF) subLPF.frequency.value = document.getElementById('sub-lpf').value;
+        if(subDelayNode) subDelayNode.delayTime.value = parseFloat(document.getElementById('sub-delay').value) / 1000;
+
+        if(lowHPF) lowHPF.frequency.value = document.getElementById('low-hpf').value;
+        if(lowLPF) lowLPF.frequency.value = document.getElementById('low-lpf').value;
+        if(lowDelayNode) lowDelayNode.delayTime.value = parseFloat(document.getElementById('low-delay').value) / 1000;
+
+        if(midHPF) midHPF.frequency.value = document.getElementById('mid-hpf').value;
+        if(midLPF) midLPF.frequency.value = document.getElementById('mid-lpf').value;
+        if(midDelayNode) midDelayNode.delayTime.value = parseFloat(document.getElementById('mid-delay').value) / 1000;
+
+        if(highHPF) highHPF.frequency.value = document.getElementById('high-hpf').value;
+        if(highLPF) highLPF.frequency.value = document.getElementById('high-lpf').value;
+        if(highDelayNode) highDelayNode.delayTime.value = parseFloat(document.getElementById('high-delay').value) / 1000;
+
+        if(eqLow) eqLow.gain.value = document.getElementById('eq-low').value;
+        if(eqLowMid) eqLowMid.gain.value = document.getElementById('eq-lowmid').value;
+        if(eqMid) eqMid.gain.value = document.getElementById('eq-mid').value;
+        if(eqHighMid) eqHighMid.gain.value = document.getElementById('eq-highmid').value;
+        if(eqHigh) eqHigh.gain.value = document.getElementById('eq-high').value;
+        if(airEnhancerFilter) airEnhancerFilter.gain.value = document.getElementById('air-enhancer').value;
+        if(subEnhancerGain) subEnhancerGain.gain.value = document.getElementById('sub-enhancer').value / 20;
+        
+        if(safetyLimiter) safetyLimiter.threshold.value = document.getElementById('limiter-thresh').value;
+
+        document.getElementById('val-sub-hpf').innerText = document.getElementById('sub-hpf').value + ' Hz';
+        document.getElementById('val-sub-lpf').innerText = document.getElementById('sub-lpf').value + ' Hz';
+        document.getElementById('val-sub-delay').innerText = parseFloat(document.getElementById('sub-delay').value).toFixed(1) + ' ms';
+        document.getElementById('val-sub-gain').innerText = formatDbText(document.getElementById('sub-gain').value);
+        
+        document.getElementById('val-low-hpf').innerText = document.getElementById('low-hpf').value + ' Hz';
+        document.getElementById('val-low-lpf').innerText = document.getElementById('low-lpf').value + ' Hz';
+        document.getElementById('val-low-delay').innerText = parseFloat(document.getElementById('low-delay').value).toFixed(1) + ' ms';
+        document.getElementById('val-low-gain').innerText = formatDbText(document.getElementById('low-gain').value);
+
+        document.getElementById('val-mid-hpf').innerText = document.getElementById('mid-hpf').value + ' Hz';
+        document.getElementById('val-mid-lpf').innerText = (document.getElementById('mid-lpf').value / 1000).toFixed(1) + ' kHz';
+        document.getElementById('val-mid-delay').innerText = parseFloat(document.getElementById('mid-delay').value).toFixed(1) + ' ms';
+        document.getElementById('val-mid-gain').innerText = formatDbText(document.getElementById('mid-gain').value);
+
+        document.getElementById('val-high-hpf').innerText = (document.getElementById('high-hpf').value / 1000).toFixed(1) + ' kHz';
+        document.getElementById('val-high-lpf').innerText = (document.getElementById('high-lpf').value / 1000).toFixed(1) + ' kHz';
+        document.getElementById('val-high-delay').innerText = parseFloat(document.getElementById('high-delay').value).toFixed(1) + ' ms';
+        document.getElementById('val-high-gain').innerText = formatDbText(document.getElementById('high-gain').value);
+
+        document.getElementById('val-eq-low').innerText = formatDbText(document.getElementById('eq-low').value);
+        document.getElementById('val-eq-lowmid').innerText = formatDbText(document.getElementById('eq-lowmid').value);
+        document.getElementById('val-eq-mid').innerText = formatDbText(document.getElementById('eq-mid').value);
+        document.getElementById('val-eq-highmid').innerText = formatDbText(document.getElementById('eq-highmid').value);
+        document.getElementById('val-eq-high').innerText = formatDbText(document.getElementById('eq-high').value);
+        document.getElementById('val-air-enhancer').innerText = formatDbText(document.getElementById('air-enhancer').value);
+        document.getElementById('val-sub-enhancer').innerText = formatDbText(document.getElementById('sub-enhancer').value);
+        document.getElementById('val-harmonic-sat').innerText = document.getElementById('harmonic-sat').value + '%';
+        document.getElementById('val-limiter').innerText = formatDbText(document.getElementById('limiter-thresh').value);
+
+        if (ctx && ctx.state === 'running') updateModuleStates();
+    };
+
+    ['sub-hpf','sub-lpf','sub-delay','sub-gain','low-hpf','low-lpf','low-delay','low-gain','mid-hpf','mid-lpf','mid-delay','mid-gain','high-hpf','high-lpf','high-delay','high-gain','eq-low','eq-lowmid','eq-mid','eq-highmid','eq-high','air-enhancer','sub-enhancer','harmonic-sat','limiter-thresh'].forEach(id => {
+        document.getElementById(id).oninput = updateDLMSParams;
+    });
+    updateDLMSParams();
+
+    function refreshPresetDropdown() {
+        const select = document.getElementById('preset-list');
+        select.innerHTML = '<option value="">-- Pilih Preset --</option>';
+        const savedPresets = JSON.parse(localStorage.getItem('audio_mixer_presets') || '{}');
+        Object.keys(savedPresets).forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name; opt.innerText = name;
+            select.appendChild(opt);
+        });
+    }
+    refreshPresetDropdown();
+
+    function applyPresetData(data) {
+        if (data.sliders) {
+            Object.keys(data.sliders).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.value = data.sliders[id];
+                    el.dispatchEvent(new Event('input'));
+                }
+            });
+        }
+        if (data.states) states = { ...data.states };
+        if (data.mutes) mutes = { ...data.mutes };
+
+        syncAllKnobs();
+        updateModuleStates();
+    }
+
+    document.getElementById('btn-save-preset').onclick = function() {
+        const presetName = prompt("Masukkan nama preset:");
+        if (!presetName || !presetName.trim()) return;
+
+        const slidersData = {};
+        document.querySelectorAll('input[type="range"]').forEach(el => { slidersData[el.id] = el.value; });
+
+        const presetPayload = { sliders: slidersData, states: { ...states }, mutes: { ...mutes } };
+        const savedPresets = JSON.parse(localStorage.getItem('audio_mixer_presets') || '{}');
+        savedPresets[presetName.trim()] = presetPayload;
+        localStorage.setItem('audio_mixer_presets', JSON.stringify(savedPresets));
+        
+        refreshPresetDropdown();
+        document.getElementById('preset-list').value = presetName.trim();
+        alert(`Preset "${presetName.trim()}" disimpan!`);
+    };
+
+    document.getElementById('btn-load-preset').onclick = function() {
+        const selectName = document.getElementById('preset-list').value;
+        if (!selectName) { alert("Pilih preset!"); return; }
+        const savedPresets = JSON.parse(localStorage.getItem('audio_mixer_presets') || '{}');
+        if (savedPresets[selectName]) {
+            applyPresetData(savedPresets[selectName]);
+            alert(`Preset "${selectName}" dimuat!`);
+        }
+    };
+
+    document.getElementById('btn-delete-preset').onclick = function() {
+        const selectName = document.getElementById('preset-list').value;
+        if (!selectName) { alert("Pilih preset!"); return; }
+        if (confirm(`Hapus preset "${selectName}"?`)) {
+            const savedPresets = JSON.parse(localStorage.getItem('audio_mixer_presets') || '{}');
+            delete savedPresets[selectName];
+            localStorage.setItem('audio_mixer_presets', JSON.stringify(savedPresets));
+            refreshPresetDropdown();
+        }
+    };
+
+    document.getElementById('btn-export-preset').onclick = function() {
+        const selectName = document.getElementById('preset-list').value;
+        let dataToExport = null;
+        if (selectName) {
+            const savedPresets = JSON.parse(localStorage.getItem('audio_mixer_presets') || '{}');
+            dataToExport = savedPresets[selectName];
+        } else {
+            const slidersData = {};
+            document.querySelectorAll('input[type="range"]').forEach(el => { slidersData[el.id] = el.value; });
+            dataToExport = { sliders: slidersData, states: { ...states }, mutes: { ...mutes } };
+        }
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToExport, null, 2));
+        const downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", (selectName || "mixer_config") + ".json");
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    };
+
+    document.getElementById('btn-import-preset').onclick = () => document.getElementById('import-file-input').click();
+    document.getElementById('import-file-input').onchange = function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            try {
+                applyPresetData(JSON.parse(event.target.result));
+                alert("Preset berhasil di-import!");
+            } catch (err) { alert("Format file salah!"); }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+    };
+
+    const attachContextMenuReset = (element, getTargetInput) => {
+        element.addEventListener('contextmenu', function(e) {
+            e.preventDefault(); const targetInput = getTargetInput(this);
+            if (targetInput) {
+                const defaultValue = targetInput.getAttribute('data-default');
+                if (defaultValue !== null) { targetInput.value = defaultValue; targetInput.dispatchEvent(new Event('input')); syncAllKnobs(); }
+            }
+        });
+    };
+    document.querySelectorAll('.knob').forEach(knob => attachContextMenuReset(knob, el => document.getElementById(el.getAttribute('data-id'))));
+    document.querySelectorAll('input[type="range"]').forEach(slider => attachContextMenuReset(slider, el => el));
+
+    const canvas = document.getElementById('analyzer');
+    const cctx = canvas.getContext('2d');
+    let peakHeights = [];
+    let rtaPeakHolds = [];
+
+    function logPos(freq) { return (Math.log10(freq) - Math.log10(20)) * (canvas.width / (Math.log10(20000) - Math.log10(20))); }
+
+    function renderFilterCurve(filters, color, strokeWidth = 2) {
+        if (!filters || filters.length === 0) return;
+        const points = 120;
+        const freqs = new Float32Array(points);
+        for (let i = 0; i < points; i++) freqs[i] = Math.pow(10, Math.log10(20) + (i / points) * (Math.log10(20000) - Math.log10(20)));
+
+        let totalMag = new Float32Array(points); totalMag.fill(1.0);
+        filters.forEach(filter => {
+            if (!filter) return;
+            let magResponse = new Float32Array(points), phaseResponse = new Float32Array(points);
+            filter.getFrequencyResponse(freqs, magResponse, phaseResponse);
+            for (let i = 0; i < points; i++) totalMag[i] *= magResponse[i];
+        });
+
+        cctx.beginPath();
+        for (let i = 0; i < points; i++) {
+            let mag = Math.max(0.0001, totalMag[i]);
+            let db = 20 * Math.log10(mag);
+            let y = canvas.height / 2 - (db * 3.5);
+            let x = logPos(freqs[i]);
+            if (i === 0) cctx.moveTo(x, y); else cctx.lineTo(x, y);
+        }
+        cctx.strokeStyle = color; cctx.lineWidth = strokeWidth; cctx.stroke();
+    }
+
+    function drawGrid() {
+        cctx.strokeStyle = '#202230'; cctx.lineWidth = 1; cctx.beginPath();
+        [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000].forEach(f => {
+            const x = logPos(f); cctx.moveTo(x, 0); cctx.lineTo(x, canvas.height);
+            cctx.fillStyle = '#52556b'; cctx.font = '9px sans-serif';
+            cctx.fillText(f >= 1000 ? (f/1000)+'k' : f, x + 3, canvas.height - 4);
+        });
+        cctx.stroke();
+    }
+
+    function drawAnalyzer() {
+        requestAnimationFrame(drawAnalyzer);
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+
+        cctx.fillStyle = '#06070a'; cctx.fillRect(0, 0, canvas.width, canvas.height);
+        drawGrid();
+
+        if (analyserMainL) {
+            const bufferLength = analyserMainL.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            analyserMainL.getByteFrequencyData(dataArray);
+
+            if (peakHeights.length !== bufferLength) peakHeights = new Array(bufferLength).fill(0);
+            if (rtaPeakHolds.length !== bufferLength) rtaPeakHolds = new Array(bufferLength).fill({ val: 0, hold: 0 });
+
+            const spectrumOpacity = states.graph ? 0.35 : 0.85;
+            const barWidth = (canvas.width / bufferLength) * 2.5;
+            let x = 0;
+
+            for (let i = 0; i < bufferLength; i++) {
+                const barHeight = (dataArray[i] / 255) * canvas.height * 0.75;
+                
+                if (barHeight > peakHeights[i]) peakHeights[i] = barHeight;
+                else {
+                    peakHeights[i] -= 1.2;
+                    if (peakHeights[i] < 0) peakHeights[i] = 0;
+                }
+
+                let peakY = canvas.height - barHeight;
+                if (peakY <= rtaPeakHolds[i].val || rtaPeakHolds[i].val === 0) {
+                    rtaPeakHolds[i].val = peakY;
+                    rtaPeakHolds[i].hold = 40;
+                } else {
+                    if (rtaPeakHolds[i].hold > 0) {
+                        rtaPeakHolds[i].hold--;
+                    } else {
+                        rtaPeakHolds[i].val += 1.5;
+                        if (rtaPeakHolds[i].val > canvas.height) rtaPeakHolds[i].val = canvas.height;
+                    }
+                }
+
+                let hue = (i / bufferLength) * 360;
+                cctx.fillStyle = `hsla(${hue}, 100%, 65%, ${spectrumOpacity})`;
+                cctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+                cctx.fillStyle = '#ffffff';
+                cctx.fillRect(x, rtaPeakHolds[i].val, barWidth, 1.5);
+
+                if (peakHeights[i] > 2) {
+                    cctx.fillStyle = `hsla(${hue}, 100%, 75%, 0.95)`;
+                    cctx.fillRect(x, canvas.height - peakHeights[i], barWidth, 2);
+                }
+                x += barWidth + 1;
+            }
+        }
+
+        if (states.graph) {
+            if (states.dlms) {
+                let showSub = !dlmsStates.lowSolo && !dlmsStates.midSolo && !dlmsStates.highSolo;
+                let showLow = !dlmsStates.subSolo && !dlmsStates.midSolo && !dlmsStates.highSolo;
+                let showMid = !dlmsStates.subSolo && !dlmsStates.lowSolo && !dlmsStates.highSolo;
+                let showHigh = !dlmsStates.subSolo && !dlmsStates.lowSolo && !dlmsStates.midSolo;
+
+                if (dlmsStates.subSolo) showSub = true;
+                if (dlmsStates.lowSolo) showLow = true;
+                if (dlmsStates.midSolo) showMid = true;
+                if (dlmsStates.highSolo) showHigh = true;
+
+                if (showSub && !dlmsStates.subMute) renderFilterCurve([subHPF, subLPF], '#38bdf8', 2.5);
+                if (showLow && !dlmsStates.lowMute) renderFilterCurve([lowHPF, lowLPF], '#fb923c', 2.5);
+                if (showMid && !dlmsStates.midMute) renderFilterCurve([midHPF, midLPF], '#4ade80', 2.5);
+                if (showHigh && !dlmsStates.highMute) renderFilterCurve([highHPF, highLPF], '#f472b6', 2.5);
+            }
+            if (states.eq31 && eq31Filters.length > 0) renderFilterCurve(eq31Filters, '#cba6f7', 2.0);
+            if (states.nyesss && nyesssFilter) renderFilterCurve([nyesssFilter], '#f5c2e7', 2.0);
+            if (states.feedback && feedbackNotch) renderFilterCurve([feedbackNotch], '#fab387', 2.0);
+            if (states.dynamicEq && dynamicEqFilter) renderFilterCurve([dynamicEqFilter], '#89dceb', 2.0);
+        }
+    }
+    drawAnalyzer();
+</script>
+</body>
+</html>
