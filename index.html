@@ -375,6 +375,50 @@
     box-shadow:0 0 7px rgba(160,110,255,.18);
 }
 
+/* ============================================================
+   RESPONSIVE: layar HP kecil (potret, ~360-480px)
+   Breakpoint besar (1100/1300/850/800/650px) sudah menangani
+   tablet/desktop sempit; blok ini khusus merapikan bagian yang
+   masih padat di layar HP kecil.
+   ============================================================ */
+html, body { overflow-x: hidden; }
+.fader-console-grid, .eq-container, .dlms-section-grid { -webkit-overflow-scrolling: touch; }
+
+@media (max-width: 480px) {
+    body { padding: 8px; }
+    .app-title { font-size: 1.02rem; letter-spacing: 0.8px; }
+    .loading-main-title { font-size: 1.6rem; letter-spacing: 1.5px; }
+    .loading-sub-title { font-size: 0.8rem; letter-spacing: 1.5px; }
+    .panel { padding: 9px; }
+    .module-title { font-size: 0.72rem; }
+
+    .dlms-section-grid { grid-template-columns: repeat(2, 1fr); gap: 4px; }
+    .output-mode-row { grid-template-columns: repeat(2, 1fr); }
+    .preset-controls { grid-template-columns: 1fr; }
+    .matrix-summary { grid-template-columns: 1fr; }
+    .master-dual-faders { grid-template-columns: 1fr 1fr; gap: 4px; }
+
+    .mini-yt-container { height: 130px; }
+    .graph-vu-container { height: 180px; max-height: 180px; }
+    .canvas-container { min-height: 120px; }
+
+    .active-modules-panel { padding: 6px 8px; gap: 6px; }
+    .active-modules-title { font-size: 0.6rem; }
+    .mod-badge { font-size: 0.56rem; padding: 2px 6px; }
+
+    /* Channel strip mixer & EQ 31-band memang didesain scroll horizontal
+       (seperti mixer fisik) — dibiarkan overflow-x: auto, bukan dipaksa wrap,
+       supaya tetap presisi dipakai jari di HP. */
+    .v-fader-strip { min-width: 82px; }
+    .eq-band { width: 30px; min-width: 30px; }
+
+    #bridge-ws-url { font-size: 0.7rem; }
+}
+
+@media (max-width: 360px) {
+    .dlms-section-grid { grid-template-columns: 1fr 1fr; gap: 3px; }
+    .knob-grid { grid-template-columns: repeat(auto-fit, minmax(52px, 1fr)); }
+}
 </style>
 
 <style id="v6-master-css">.master-fader-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center;padding:14px}.master-fader-col{text-align:center}.master-fader-title{font-weight:700;margin-bottom:8px}.master-fader{width:100%}.master-link-col{text-align:center;min-width:120px}.master-link-note{font-size:11px;opacity:.7;margin-top:7px}</style>
@@ -555,6 +599,13 @@
                 <div style="margin-top: 8px; border-top: 1px solid var(--border); padding-top: 6px;">
                     <label style="color: var(--accent-blue); font-weight: bold; font-size: 0.7rem;">💻 AUDIO & VIDEO TAB (CHROME / YT):</label>
                     <button class="btn btn-tab-audio" id="btn-toggle-tab-audio">🖥️ TANGKAP TAB & VIDEO</button>
+                </div>
+
+                <div style="margin-top: 8px; border-top: 1px solid var(--border); padding-top: 6px;">
+                    <label style="color: var(--accent-cyan); font-weight: bold; font-size: 0.7rem;">🔌 BRIDGE DARI APP ANDROID (Ch 1 Tab):</label>
+                    <input type="text" id="bridge-ws-url" class="input-select-style" value="ws://127.0.0.1:8765" placeholder="ws://127.0.0.1:8765">
+                    <button class="btn btn-tab-audio" id="btn-toggle-bridge">🔌 SAMBUNGKAN APP ANDROID</button>
+                    <div id="bridge-status-text" style="font-size: 0.58rem; color: #6c7086; margin-top: 3px; text-align: center;">BRIDGE: OFF</div>
                 </div>
 
                 <div style="margin-top: 8px; border-top: 1px solid var(--border); padding-top: 6px;">
@@ -1388,6 +1439,7 @@
         if (states.graph) activeItems.push("Grafik RTA");
         if (isMicActive) activeItems.push("Live Mic");
         if (isTabAudioActive) activeItems.push("Tab Audio Capture");
+        if (isBridgeActive) activeItems.push("Bridge App Android");
         if (activeNoiseType) activeItems.push(`Soundcheck (${activeNoiseType.toUpperCase()} Noise)`);
 
         container.innerHTML = '';
@@ -1865,6 +1917,7 @@
         if (noiseSourceNode) { try{noiseSourceNode.stop();}catch(e){} noiseSourceNode = null; activeNoiseType = null; document.getElementById('btn-pink-noise').classList.remove('noise-on'); document.getElementById('btn-white-noise').classList.remove('noise-on'); document.getElementById('noise-status-text').innerText = "STATUS NOISE: OFF"; }
         
         if (isTabAudioActive) stopTabAudioCapture();
+        if (isBridgeActive) stopBridgeCapture('Sumber lain diaktifkan');
         
         initAudioContext();
         startAudioEngine();
@@ -1932,6 +1985,7 @@
 
     document.getElementById('btn-toggle-tab-audio').addEventListener('click', async function() {
         if (noiseSourceNode) { try{noiseSourceNode.stop();}catch(e){} noiseSourceNode = null; activeNoiseType = null; document.getElementById('btn-pink-noise').classList.remove('noise-on'); document.getElementById('btn-white-noise').classList.remove('noise-on'); document.getElementById('noise-status-text').innerText = "STATUS NOISE: OFF"; }
+        if (isBridgeActive) stopBridgeCapture('Sumber lain diaktifkan');
         
         if (!isTabAudioActive) {
             try {
@@ -2004,7 +2058,7 @@
         if (!ctx || !analyserCh1L || !tabAutoGain) return;
 
         tabLevelerTimer = setInterval(() => {
-            if (!isTabAudioActive || !ctx || !analyserCh1L || !tabAutoGain) return;
+            if ((!isTabAudioActive && !isBridgeActive) || !ctx || !analyserCh1L || !tabAutoGain) return;
 
             const data = mainTimeData || new Float32Array(analyserCh1L.fftSize);
             analyserCh1L.getFloatTimeDomainData(data);
@@ -2068,6 +2122,190 @@
         
         isTabAudioActive = false;
         const btn = document.getElementById('btn-toggle-tab-audio');
+        syncAllControlUI();
+    }
+
+    // ============================================================
+    // BRIDGE DARI APP ANDROID (DLMS Audio Bridge)
+    // ------------------------------------------------------------
+    // App Android bertindak sebagai WebSocket SERVER lokal (127.0.0.1)
+    // karena halaman web (client) tidak bisa membuka port untuk
+    // menerima koneksi masuk. Browser di sini connect sebagai client.
+    //
+    // ws://127.0.0.1 dari halaman HTTPS TIDAK diblokir mixed-content,
+    // karena loopback dianggap "potentially trustworthy" oleh Chrome.
+    //
+    // Audio yang masuk disambungkan ke TITIK YANG SAMA dengan Ch1 Tab
+    // (ch1Trim) supaya otomatis ikut trim/pan/fader/auto-leveler/DLMS
+    // yang sudah ada — tidak perlu channel mixer baru.
+    // ============================================================
+    let bridgeWs = null;
+    let bridgeWorkletNode = null;
+    let isBridgeActive = false;
+    let bridgeAudioFormat = { sampleRate: 48000, channels: 2 };
+
+    const BRIDGE_WORKLET_SRC = `
+        class BridgeSourceProcessor extends AudioWorkletProcessor {
+            constructor() {
+                super();
+                this._queue = [];       // antrean Float32Array interleaved [L,R,L,R,...]
+                this._offset = 0;       // posisi baca di dalam chunk pertama (indeks sample interleaved)
+                this._maxQueuedFrames = 48000 * 0.75; // batasi buffer ~750ms agar latency tidak menumpuk
+                this.port.onmessage = (evt) => {
+                    this._queue.push(evt.data);
+                    // Buang chunk terlama kalau antrean kepanjangan (network lebih cepat dari playback).
+                    let totalFrames = 0;
+                    for (const c of this._queue) totalFrames += c.length / 2;
+                    while (totalFrames > this._maxQueuedFrames && this._queue.length > 1) {
+                        const dropped = this._queue.shift();
+                        totalFrames -= dropped.length / 2;
+                        this._offset = 0;
+                    }
+                };
+            }
+            process(inputs, outputs) {
+                const outL = outputs[0][0];
+                const outR = outputs[0][1];
+                const framesNeeded = outL.length;
+                let written = 0;
+                while (written < framesNeeded) {
+                    if (this._queue.length === 0) {
+                        for (let i = written; i < framesNeeded; i++) { outL[i] = 0; outR[i] = 0; }
+                        break;
+                    }
+                    const chunk = this._queue[0];
+                    const availableFrames = (chunk.length - this._offset) / 2;
+                    const framesToCopy = Math.min(availableFrames, framesNeeded - written);
+                    for (let i = 0; i < framesToCopy; i++) {
+                        const idx = this._offset + i * 2;
+                        outL[written + i] = chunk[idx];
+                        outR[written + i] = chunk[idx + 1];
+                    }
+                    written += framesToCopy;
+                    this._offset += framesToCopy * 2;
+                    if (this._offset >= chunk.length) {
+                        this._queue.shift();
+                        this._offset = 0;
+                    }
+                }
+                return true;
+            }
+        }
+        registerProcessor('bridge-source-processor', BridgeSourceProcessor);
+    `;
+
+    async function ensureBridgeWorklet() {
+        if (bridgeWorkletNode) return bridgeWorkletNode;
+        const blob = new Blob([BRIDGE_WORKLET_SRC], { type: 'application/javascript' });
+        const url = URL.createObjectURL(blob);
+        try {
+            await ctx.audioWorklet.addModule(url);
+        } finally {
+            URL.revokeObjectURL(url);
+        }
+        bridgeWorkletNode = new AudioWorkletNode(ctx, 'bridge-source-processor', {
+            numberOfInputs: 0,
+            numberOfOutputs: 1,
+            outputChannelCount: [2]
+        });
+        return bridgeWorkletNode;
+    }
+
+    function setBridgeStatus(text, color) {
+        const el = document.getElementById('bridge-status-text');
+        el.innerText = text;
+        el.style.color = color || '#6c7086';
+    }
+
+    document.getElementById('btn-toggle-bridge').addEventListener('click', async function() {
+        if (isBridgeActive) {
+            stopBridgeCapture('Dihentikan pengguna');
+            return;
+        }
+
+        if (noiseSourceNode) { try{noiseSourceNode.stop();}catch(e){} noiseSourceNode = null; activeNoiseType = null; document.getElementById('btn-pink-noise').classList.remove('noise-on'); document.getElementById('btn-white-noise').classList.remove('noise-on'); document.getElementById('noise-status-text').innerText = "STATUS NOISE: OFF"; }
+        if (isTabAudioActive) stopTabAudioCapture();
+
+        const wsUrl = document.getElementById('bridge-ws-url').value.trim() || 'ws://127.0.0.1:8765';
+
+        try {
+            initAudioContext();
+            if (ctx.state === 'suspended') await ctx.resume();
+            setupAudioRouting();
+            await ensureBridgeWorklet();
+        } catch (e) {
+            alert('Gagal menyiapkan audio engine untuk Bridge:\\n' + (e && e.message ? e.message : e));
+            return;
+        }
+
+        setBridgeStatus('MENGHUBUNGKAN...', 'var(--accent-yellow)');
+
+        try {
+            bridgeWs = new WebSocket(wsUrl);
+        } catch (e) {
+            setBridgeStatus('URL WebSocket tidak valid', 'var(--accent-red)');
+            return;
+        }
+        bridgeWs.binaryType = 'arraybuffer';
+
+        bridgeWs.onopen = () => {
+            isBridgeActive = true;
+            isTabAudioActive = true; // reuse VU/leveler Ch1 yang sudah ada (lihat komentar di atas)
+            bridgeWorkletNode.connect(ch1Trim);
+            if (tabAutoGain && ctx) tabAutoGain.gain.setTargetAtTime(1.0, ctx.currentTime, 0.15);
+            startTabLeveler();
+            setBridgeStatus('BRIDGE AKTIF — ' + wsUrl, 'var(--accent-green)');
+            ytPlaceholder.style.display = "block";
+            ytPlaceholder.innerText = "Audio dari App Android (Bridge) aktif — tanpa preview video.";
+            document.getElementById('btn-toggle-bridge').classList.add('active');
+            syncAllControlUI();
+        };
+
+        bridgeWs.onmessage = (evt) => {
+            if (typeof evt.data === 'string') {
+                try {
+                    const msg = JSON.parse(evt.data);
+                    if (msg.type === 'format') {
+                        bridgeAudioFormat = { sampleRate: msg.sampleRate, channels: msg.channels };
+                    }
+                } catch (e) { /* abaikan pesan teks yang tak dikenal */ }
+                return;
+            }
+            // Data biner: PCM16LE interleaved stereo dari app Android.
+            const int16 = new Int16Array(evt.data);
+            const float32 = new Float32Array(int16.length);
+            for (let i = 0; i < int16.length; i++) {
+                float32[i] = Math.max(-1, Math.min(1, int16[i] / 32768));
+            }
+            if (bridgeWorkletNode) {
+                bridgeWorkletNode.port.postMessage(float32, [float32.buffer]);
+            }
+        };
+
+        bridgeWs.onerror = () => {
+            setBridgeStatus('GAGAL TERSAMBUNG — cek app Android & URL', 'var(--accent-red)');
+        };
+
+        bridgeWs.onclose = () => {
+            if (isBridgeActive) stopBridgeCapture('Koneksi terputus');
+        };
+    });
+
+    function stopBridgeCapture(reason) {
+        if (bridgeWs) {
+            try { bridgeWs.close(); } catch (e) {}
+            bridgeWs = null;
+        }
+        if (bridgeWorkletNode) {
+            try { bridgeWorkletNode.disconnect(); } catch (e) {}
+        }
+        stopTabLeveler();
+        isBridgeActive = false;
+        isTabAudioActive = false;
+        document.getElementById('btn-toggle-bridge').classList.remove('active');
+        setBridgeStatus('BRIDGE: OFF (' + reason + ')', '#6c7086');
+        ytPlaceholder.style.display = "block";
+        ytPlaceholder.innerText = "Menampilkan Video dari Sumber Tab / File Aktif...";
         syncAllControlUI();
     }
 
