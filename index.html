@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -1317,6 +1318,11 @@ html, body { overflow-x: hidden; }
 
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     let ctx = null;
+    // BACKGROUND TEST: route the final Web Audio mix through an HTMLMediaElement.
+    // Android browsers are more likely to keep an active media element alive in background.
+    let backgroundMediaDestination = null;
+    let backgroundAudioElement = null;
+    let backgroundKeepAliveReady = false;
     const mediaEl = document.getElementById('media-element');
     const sharedVideoPreview = document.getElementById('shared-video-preview');
     const ytPlaceholder = document.getElementById('yt-placeholder');
@@ -1459,7 +1465,35 @@ html, body { overflow-x: hidden; }
 
     function initAudioContext() {
         if (!ctx) {
-            ctx = new AudioContext();
+            ctx = new AudioContext({ latencyHint: "interactive", sampleRate: 48000 });
+
+            // Background output bridge. The audio element is created once and receives
+            // the final mixed stream. It remains the actual media sink for this test.
+            backgroundMediaDestination = ctx.createMediaStreamDestination();
+            backgroundAudioElement = document.createElement("audio");
+            backgroundAudioElement.id = "dlms-background-audio";
+            backgroundAudioElement.autoplay = true;
+            backgroundAudioElement.playsInline = true;
+            backgroundAudioElement.setAttribute("aria-hidden", "true");
+            backgroundAudioElement.style.cssText = "position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;left:-10px;top:-10px;";
+            backgroundAudioElement.srcObject = backgroundMediaDestination.stream;
+            document.body.appendChild(backgroundAudioElement);
+
+            // Media Session makes the page look more like an active media player to Android.
+            if ("mediaSession" in navigator) {
+                try {
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title: "DLMS Audio Engine", artist: "DLMS Digital", album: "Background Audio"
+                    });
+                    ["play", "pause", "stop"].forEach(action => {
+                        try { navigator.mediaSession.setActionHandler(action, () => {
+                            if (!ctx) return;
+                            if (action === "play") ctx.resume();
+                            else if (action === "pause" || action === "stop") { /* intentionally do not suspend */ }
+                        }); } catch (e) {}
+                    });
+                } catch (e) {}
+            }
 
             eq31Filters.length = 0;
             eq31Frequencies.forEach((freq) => {
@@ -1772,7 +1806,7 @@ html, body { overflow-x: hidden; }
             globalMasterGain.connect(splitterMain);
             splitterMain.connect(analyserMainL, 0);
             splitterMain.connect(analyserMainR, 1);
-            globalMasterGain.connect(ctx.destination);
+            globalMasterGain.connect(backgroundMediaDestination || ctx.destination);
 
             // Reuse analysis buffers instead of allocating typed arrays every frame.
             micTimeData = new Float32Array(analyserMicL.fftSize);
@@ -1982,6 +2016,36 @@ html, body { overflow-x: hidden; }
         if (currentObjectURL) {
             try { URL.revokeObjectURL(currentObjectURL); } catch (e) {}
             currentObjectURL = null;
+        }
+    });
+
+    // ============================================================
+    // BACKGROUND AUDIO TEST
+    // Keep Web Audio alive when the document becomes hidden.
+    // IMPORTANT: do not suspend AudioContext on visibilitychange.
+    // ============================================================
+    async function ensureBackgroundAudioPlaying() {
+        if (!ctx || !backgroundAudioElement) return;
+        try {
+            if (ctx.state === 'suspended') await ctx.resume();
+        } catch (e) {
+            console.warn('DLMS background: AudioContext resume failed', e);
+        }
+        try {
+            const p = backgroundAudioElement.play();
+            if (p && typeof p.catch === 'function') await p.catch(() => {});
+            backgroundKeepAliveReady = !backgroundAudioElement.paused;
+        } catch (e) {
+            backgroundKeepAliveReady = false;
+        }
+    }
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            // Do not stop/suspend the DSP graph. Refresh the media sink instead.
+            ensureBackgroundAudioPlaying();
+        } else {
+            ensureBackgroundAudioPlaying();
         }
     });
 
@@ -2234,6 +2298,7 @@ html, body { overflow-x: hidden; }
             initAudioContext();
             if (ctx.state === 'suspended') await ctx.resume();
             setupAudioRouting();
+            await ensureBackgroundAudioPlaying();
             await ensureBridgeWorklet();
         } catch (e) {
             alert('Gagal menyiapkan audio engine untuk Bridge:\\n' + (e && e.message ? e.message : e));
@@ -3027,6 +3092,14 @@ html, body { overflow-x: hidden; }
         }
     };
 
+
+    // Expose a tiny diagnostic helper for manual testing from DevTools.
+    window.dlmsBackgroundAudioTest = async function(){
+        initAudioContext();
+        setupAudioRouting();
+        await ensureBackgroundAudioPlaying();
+        return { audioContext: ctx?.state, mediaElementPlaying: !!backgroundAudioElement && !backgroundAudioElement.paused };
+    };
     ['sub-gain','low-gain','mid-gain','high-gain'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input',()=>{ if(ctx&&ctx.state==='running') updateOutputRouting(); }); });
 
     document.getElementById('btn-start-engine').addEventListener('click', startAudioEngine);
