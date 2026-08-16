@@ -109,9 +109,9 @@
         .main-layout { display: grid; grid-template-columns: 320px 1fr; gap: 12px; max-width: 1750px; margin: 0 auto; transition: opacity 0.3s ease; }
         @media (max-width: 1100px) { .main-layout { grid-template-columns: 1fr; } }
 
-        .left-column, .right-column { display: flex; flex-direction: column; gap: 10px; }
+        .left-column, .right-column { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 
-        .panel { background: var(--panel-bg); border: 2px solid var(--border); border-radius: 8px; padding: 12px; position: relative; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .panel { background: var(--panel-bg); border: 2px solid var(--border); border-radius: 8px; padding: 12px; position: relative; transition: opacity 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.5); min-width: 0; }
         .module-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 6px; flex-wrap: wrap; gap: 6px; }
         .module-title { font-size: 0.8rem; font-weight: bold; color: var(--accent-yellow); text-transform: uppercase; letter-spacing: 0.5px; }
 
@@ -197,10 +197,10 @@
         .vu-channel-group { display: flex; flex-direction: column; align-items: center; height: 100%; gap: 2px; }
         .vu-channel-label { font-size: 0.6rem; font-weight: bold; color: var(--accent-blue); }
 
-        .mid-console-container { display: grid; grid-template-columns: 620px 1fr; gap: 12px; background: #12131c; padding: 12px; border-radius: 8px; border: 2px solid var(--border); align-items: stretch; }
+        .mid-console-container { display: grid; grid-template-columns: 620px 1fr; gap: 12px; background: #12131c; padding: 12px; border-radius: 8px; border: 2px solid var(--border); align-items: stretch; min-width: 0; }
         @media (max-width: 1300px) { .mid-console-container { grid-template-columns: 1fr; } }
         
-        .fader-console-wrapper { display: flex; flex-direction: column; justify-content: flex-start; height: 100%; }
+        .fader-console-wrapper { display: flex; flex-direction: column; justify-content: flex-start; height: 100%; min-width: 0; }
         
         /* Desain Channel Strip Mixer Realistis & Dirapatkan Ke Atas */
         .fader-console-grid { display: flex; gap: 6px; justify-content: space-between; overflow-x: auto; padding-bottom: 2px; }
@@ -242,6 +242,8 @@
 
         .dlms-section-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 4px; }
         @media (max-width: 1100px) { .dlms-section-grid { grid-template-columns: repeat(2, 1fr); } }
+        #panel-dlms { min-width: 0; }
+        .fader-console-grid, .eq-container { min-width: 0; max-width: 100%; }
         .dlms-subcard { background: var(--subpanel-bg); border: 1px solid #232435; border-radius: 6px; padding: 6px; display: flex; flex-direction: column; gap: 6px; position: relative; }
         .dlms-card-title { font-size: 0.65rem; font-weight: bold; text-transform: uppercase; border-bottom: 1px dashed #2e3048; padding-bottom: 3px; text-align: center; }
 
