@@ -189,7 +189,10 @@
 
         .graph-vu-container { display: grid; grid-template-columns: 1fr 60px; gap: 10px; height: 220px; max-height: 220px; }
         @media (max-width: 650px) { 
-            .graph-vu-container { grid-template-columns: 1fr; height: 200px; max-height: 200px; } 
+            .graph-vu-container { grid-template-columns: 1fr 46px; gap: 6px; height: 190px; max-height: 190px; } 
+        }
+        @media (max-width: 400px) {
+            .graph-vu-container { grid-template-columns: 1fr 38px; }
         }
         .canvas-container { height: 100%; min-height: 140px; max-height: 220px; background: #06070a; border-radius: 6px; overflow: hidden; position: relative; border: 1px solid var(--border); }
         canvas { width: 100%; height: 100%; display: block; }
@@ -204,7 +207,7 @@
         .fader-console-wrapper { display: flex; flex-direction: column; justify-content: flex-start; height: 100%; min-width: 0; }
         
         /* Desain Channel Strip Mixer Realistis & Dirapatkan Ke Atas */
-        .fader-console-grid { display: flex; gap: 6px; justify-content: space-between; overflow-x: auto; padding-bottom: 2px; }
+        .fader-console-grid { display: flex; gap: 6px; justify-content: space-between; overflow-x: auto; padding-bottom: 2px; padding-right: 4px; scroll-padding-right: 8px; }
         .v-fader-strip { 
             display: flex; flex-direction: column; align-items: center; 
             background: linear-gradient(180deg, #141520 0%, #0e0f17 100%); 
@@ -300,6 +303,15 @@
         .eq-val { font-size: 0.48rem; font-weight: bold; color: var(--accent-yellow); margin-top: 4px; text-align: center; width: 100%; }
 
         .disabled-module { opacity: 0.35; pointer-events: none; filter: grayscale(0.5); }
+
+        .peq-container { display: flex; gap: 6px; overflow-x: auto; padding: 8px 4px; background: #0d0e14; border-radius: 6px; border: 1px solid #232435; }
+        .peq-band { display: flex; flex-direction: column; align-items: center; min-width: 108px; background: #141520; padding: 8px 6px; border-radius: 5px; border: 1px solid #1f202e; }
+        .peq-band-title { font-size: 0.6rem; font-weight: bold; color: var(--accent-cyan); margin-bottom: 6px; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; }
+        .peq-type-select { width: 100%; font-size: 0.58rem; padding: 3px 2px; margin-bottom: 8px; background: #0a0b10; color: var(--text-main); border: 1px solid var(--border); border-radius: 3px; }
+        .peq-knob-row { display: flex; gap: 8px; justify-content: center; }
+        .peq-knob-group { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+        .peq-knob-group-label { font-size: 0.48rem; color: #a6adc8; text-transform: uppercase; }
+        .peq-knob-val { font-size: 0.5rem; font-weight: bold; color: var(--accent-yellow); text-align: center; min-width: 40px; }
         .section-subtitle { font-size: 0.7rem; color: var(--accent-pink); font-weight: bold; margin-top: 6px; margin-bottom: 4px; border-bottom: 1px dashed var(--border); padding-bottom: 2px; text-transform: uppercase; }
         
         .input-select-style, .preset-select { background: #222436; color: var(--text-main); border: 1px solid var(--border); padding: 5px; border-radius: 4px; width: 100%; font-size: 0.75rem; margin-top: 4px; }
@@ -327,6 +339,13 @@
         .matrix-summary-card { background:#08090c; border:1px solid var(--border); border-radius:5px; padding:5px; text-align:center; font-size:.58rem; }
         .matrix-summary-card strong { display:block; font-size:.65rem; margin-bottom:2px; }
         @media(max-width:800px){ .output-routing-grid{grid-template-columns:1fr;} }
+
+.output-routing-compact { background: #12131c; border: 1px dashed var(--accent-cyan); border-radius: 6px; padding: 6px 10px; margin-bottom: 8px; }
+.output-routing-compact-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.output-routing-compact-label { font-size: 0.62rem; font-weight: bold; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+.output-routing-compact .output-mode-btn { padding: 3px 8px; font-size: 0.62rem; }
+.output-routing-compact .output-mode-status { margin: 6px 0 0 0; padding: 4px 7px; font-size: 0.5rem; }
+.output-routing-compact .output-routing-grid.matrix-details { margin-top: 6px; }
     
 /* V9: compact Output Routing + Matrix detail menu */
 .output-mode-status{
@@ -421,6 +440,10 @@ html, body { overflow-x: hidden; }
 @media (max-width: 360px) {
     .dlms-section-grid { grid-template-columns: 1fr 1fr; gap: 3px; }
     .knob-grid { grid-template-columns: repeat(auto-fit, minmax(52px, 1fr)); }
+    .fader-console-grid { gap: 4px; }
+    .v-fader-strip { min-width: 74px; padding: 5px 3px; }
+    .v-fader-title { font-size: 0.58rem; }
+    .v-fader-val { font-size: 0.54rem; }
 }
 </style>
 
@@ -676,6 +699,7 @@ html, body { overflow-x: hidden; }
                             <div class="legend-item"><div class="legend-color" style="background: #4ade80;"></div> Mid Band</div>
                             <div class="legend-item"><div class="legend-color" style="background: #f472b6;"></div> High Band</div>
                             <div class="legend-item"><div class="legend-color" style="background: var(--accent-purple);"></div> EQ 31 Band</div>
+                            <div class="legend-item"><div class="legend-color" style="background: #89dceb;"></div> PEQ 6 Band</div>
                         </div>
                         <button class="switch-btn" id="sw-graph" style="pointer-events: auto;"><span class="led-dot"></span> 📈 GRAFIK: OFF</button>
                     </div>
@@ -700,6 +724,40 @@ html, body { overflow-x: hidden; }
             <div class="fader-console-wrapper">
                 <div style="font-size: 0.8rem; font-weight: bold; color: var(--accent-blue); margin-bottom: 8px; text-transform: uppercase;">
                     🎛️ Split Feeder Console (Mixer Channel Strip)
+                </div>
+
+                <div class="output-routing-compact">
+                    <div class="output-routing-compact-row">
+                        <span class="output-routing-compact-label">🔀 Output:</span>
+                        <button class="output-mode-btn active" id="output-mode-stereo">STEREO</button>
+                        <button class="output-mode-btn" id="output-mode-mono">MONO</button>
+                        <button class="output-mode-btn" id="output-mode-matrix">MATRIX</button>
+                    </div>
+                    <div class="output-mode-status" id="output-mode-status">
+                        STEREO — BUS A (L) dan BUS B (R) bekerja sebagai Left / Right normal.
+                    </div>
+                    <div class="output-routing-grid matrix-details" id="matrixRoutingDetails" hidden>
+                        <div>
+                            <div class="section-subtitle" style="margin-top:6px;color:var(--accent-cyan);">MATRIX ROUTING</div>
+                            <table class="matrix-table">
+                                <thead><tr><th>FREQUENCY</th><th>BUS A (L)</th><th>BUS B (R)</th></tr></thead>
+                                <tbody>
+                                    <tr><td>SUB</td><td><button class="matrix-route-btn off" id="matrix-sub-a">L</button></td><td><button class="matrix-route-btn active-b" id="matrix-sub-b">R</button></td></tr>
+                                    <tr><td>LOW</td><td><button class="matrix-route-btn off" id="matrix-low-a">L</button></td><td><button class="matrix-route-btn active-b" id="matrix-low-b">R</button></td></tr>
+                                    <tr><td>MID</td><td><button class="matrix-route-btn active-a" id="matrix-mid-a">L</button></td><td><button class="matrix-route-btn off" id="matrix-mid-b">R</button></td></tr>
+                                    <tr><td>HIGH</td><td><button class="matrix-route-btn active-a" id="matrix-high-a">L</button></td><td><button class="matrix-route-btn off" id="matrix-high-b">R</button></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div>
+                            <div class="section-subtitle" style="margin-top:6px;color:var(--accent-cyan);">ROUTING MONITOR</div>
+                            <div class="matrix-summary">
+                                <div class="matrix-summary-card"><strong style="color:var(--accent-blue);">BUS A (L)</strong><span id="matrix-summary-a">MID + HIGH</span></div>
+                                <div class="matrix-summary-card"><strong style="color:var(--accent-purple);">BUS B (R)</strong><span id="matrix-summary-b">SUB + LOW</span></div>
+                            </div>
+                            <div style="font-size:.55rem;color:#6c7086;margin-top:6px;line-height:1.4;">MATRIX membagi hasil crossover ke dua output. STEREO dan MONO mempertahankan jalur master normal.</div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="fader-console-grid">
@@ -1123,41 +1181,22 @@ html, body { overflow-x: hidden; }
             <div class="eq-container" id="eq31-sliders-holder"></div>
         </div>
 
-        <div class="panel" id="panel-output-routing" style="border-color: var(--accent-cyan);">
+        <div class="panel" id="panel-peq" style="border-color: var(--accent-cyan);">
             <div class="module-header">
-                <div class="module-title" style="color: var(--accent-cyan);">🔀 OUTPUT ROUTING</div>
-                <div style="font-size:.58rem;color:#a6adc8;">BUS A (L) / BUS B (R)</div>
-            </div>
-            <div class="output-mode-row">
-                <button class="output-mode-btn active" id="output-mode-stereo">STEREO</button>
-                <button class="output-mode-btn" id="output-mode-mono">MONO</button>
-                <button class="output-mode-btn" id="output-mode-matrix">MATRIX</button>
-            </div>
-            <div class="output-mode-status" id="output-mode-status">
-                STEREO — BUS A (L) dan BUS B (R) bekerja sebagai Left / Right normal.
-            </div>
-            <div class="output-routing-grid matrix-details" id="matrixRoutingDetails" hidden>
-                <div>
-                    <div class="section-subtitle" style="margin-top:6px;color:var(--accent-cyan);">MATRIX ROUTING</div>
-                    <table class="matrix-table">
-                        <thead><tr><th>FREQUENCY</th><th>BUS A (L)</th><th>BUS B (R)</th></tr></thead>
-                        <tbody>
-                            <tr><td>SUB</td><td><button class="matrix-route-btn off" id="matrix-sub-a">L</button></td><td><button class="matrix-route-btn active-b" id="matrix-sub-b">R</button></td></tr>
-                            <tr><td>LOW</td><td><button class="matrix-route-btn off" id="matrix-low-a">L</button></td><td><button class="matrix-route-btn active-b" id="matrix-low-b">R</button></td></tr>
-                            <tr><td>MID</td><td><button class="matrix-route-btn active-a" id="matrix-mid-a">L</button></td><td><button class="matrix-route-btn off" id="matrix-mid-b">R</button></td></tr>
-                            <tr><td>HIGH</td><td><button class="matrix-route-btn active-a" id="matrix-high-a">L</button></td><td><button class="matrix-route-btn off" id="matrix-high-b">R</button></td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div>
-                    <div class="section-subtitle" style="margin-top:6px;color:var(--accent-cyan);">ROUTING MONITOR</div>
-                    <div class="matrix-summary">
-                        <div class="matrix-summary-card"><strong style="color:var(--accent-blue);">BUS A (L)</strong><span id="matrix-summary-a">MID + HIGH</span></div>
-                        <div class="matrix-summary-card"><strong style="color:var(--accent-purple);">BUS B (R)</strong><span id="matrix-summary-b">SUB + LOW</span></div>
-                    </div>
-                    <div style="font-size:.55rem;color:#6c7086;margin-top:6px;line-height:1.4;">MATRIX membagi hasil crossover ke dua output. STEREO dan MONO mempertahankan jalur master normal.</div>
+                <div class="module-title" style="color: var(--accent-cyan);">🎯 PARAMETRIC EQ (PEQ) 6-BAND</div>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                    <select id="peq-preset-select" class="preset-select" style="margin-top: 0; width: 170px; font-size: 0.65rem; padding: 3px 6px;">
+                        <option value="">-- Pilih PEQ Preset --</option>
+                        <option value="flat">Flat (Normal)</option>
+                        <option value="horeg">🔥 Sound Horeg</option>
+                        <option value="hajatan">Hajatan / Dangdut</option>
+                        <option value="ceksound">Cek Sound Lapangan</option>
+                        <option value="vocal">Vokal / Pidato / Masjid</option>
+                    </select>
+                    <button class="switch-btn" id="sw-peq"><span class="led-dot"></span> PEQ OFF</button>
                 </div>
             </div>
+            <div class="peq-container" id="peq-bands-holder"></div>
         </div>
 
         <div class="tuning-dsp-row">
@@ -1353,6 +1392,7 @@ html, body { overflow-x: hidden; }
     let splitterMic, analyserMicL, analyserMicR, splitterFile, analyserFileL, analyserFileR;
     let splitterMEfek, analyserMEfekL, analyserMEfekR, analyserEqInput;
     let eq31Filters = [], eqSliders = [];
+    let peqFilters = [], peqInNode, peqOutNode, peqBypassGain, postPeqBus;
 
     // Persistent graph nodes: dibuat sekali selama umur halaman.
     let dspMasterBus, preDlmsBus, eq31InNode, eq31OutNode, eq31BypassGain, post31EqBus;
@@ -1408,10 +1448,19 @@ html, body { overflow-x: hidden; }
     };
 
     const eq31Frequencies = [20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500, 16000, 20000];
+    const peqBandConfig = [
+        { label: 'Band 1', freq: 60,    type: 'lowshelf', q: 0.71 },
+        { label: 'Band 2', freq: 250,   type: 'peaking',  q: 1.0  },
+        { label: 'Band 3', freq: 800,   type: 'peaking',  q: 1.0  },
+        { label: 'Band 4', freq: 2500,  type: 'peaking',  q: 1.0  },
+        { label: 'Band 5', freq: 6000,  type: 'peaking',  q: 1.0  },
+        { label: 'Band 6', freq: 12000, type: 'highshelf',q: 0.71 }
+    ];
+    const peqFilterTypes = ['peaking','lowshelf','highshelf','notch','lowpass','highpass'];
 
     let states = { 
         input: true, dsp: false, dlms: false, 
-        nyesss: false, feedback: false, autoFeedback: false, dynamicEq: false, loop: false, graph: false, eq31: false,
+        nyesss: false, feedback: false, autoFeedback: false, dynamicEq: false, loop: false, graph: false, eq31: false, peq: false,
         ch1Fx: false, micFx: false, fileFx: false, agc: true,
         limiter: true
     };
@@ -1439,6 +1488,7 @@ html, body { overflow-x: hidden; }
         if (states.dsp) activeItems.push("99 DSP Processor");
         if (states.dlms) activeItems.push("DLMS Crossover");
         if (states.eq31) activeItems.push("Graphic EQ 31-Band");
+        if (states.peq) activeItems.push("Parametric EQ 6-Band");
         if (states.nyesss) activeItems.push("Efek Nyesss");
         if (states.feedback) activeItems.push("FB Notch");
         if (states.autoFeedback) activeItems.push("Auto Feedback");
@@ -1503,6 +1553,16 @@ html, body { overflow-x: hidden; }
                 filter.Q.value = 4.3; 
                 filter.gain.value = 0;
                 eq31Filters.push(filter);
+            });
+
+            peqFilters.length = 0;
+            peqBandConfig.forEach((band) => {
+                const filter = ctx.createBiquadFilter();
+                filter.type = band.type;
+                filter.frequency.value = band.freq;
+                filter.Q.value = band.q;
+                filter.gain.value = 0;
+                peqFilters.push(filter);
             });
 
             globalMasterGain = ctx.createGain();
@@ -1708,7 +1768,20 @@ html, body { overflow-x: hidden; }
             eqLowMid.connect(eqMid);
             eqMid.connect(eqHighMid);
             eqHighMid.connect(eqHigh);
-            eqHigh.connect(airEnhancerFilter);
+            peqInNode = ctx.createGain();
+            peqOutNode = ctx.createGain();
+            peqBypassGain = ctx.createGain();
+            postPeqBus = ctx.createGain();
+            eqHigh.connect(peqInNode);
+            eqHigh.connect(peqBypassGain);
+            peqInNode.connect(peqFilters[0]);
+            for (let i = 0; i < peqFilters.length - 1; i++) {
+                peqFilters[i].connect(peqFilters[i + 1]);
+            }
+            peqFilters[peqFilters.length - 1].connect(peqOutNode);
+            peqOutNode.connect(postPeqBus);
+            peqBypassGain.connect(postPeqBus);
+            postPeqBus.connect(airEnhancerFilter);
 
             // Crossover / DLMS.
             crossoverInputBus = ctx.createGain();
@@ -2532,6 +2605,104 @@ html, body { overflow-x: hidden; }
         }, 50);
     });
 
+    const peqHolder = document.getElementById('peq-bands-holder');
+    peqBandConfig.forEach((band, idx) => {
+        const bandEl = document.createElement('div');
+        bandEl.classList.add('peq-band');
+
+        const typeOptions = peqFilterTypes.map(t =>
+            `<option value="${t}" ${t === band.type ? 'selected' : ''}>${t}</option>`
+        ).join('');
+
+        bandEl.innerHTML = `
+            <div class="peq-band-title">${band.label}</div>
+            <select class="peq-type-select" id="peq-${idx}-type">${typeOptions}</select>
+            <div class="peq-knob-row">
+                <div class="peq-knob-group">
+                    <div class="peq-knob-group-label">Freq</div>
+                    <div class="knob" id="knob-peq-${idx}-freq" data-id="peq-${idx}-freq" style="width:26px;height:26px;"><div class="knob-pointer"></div></div>
+                    <div class="peq-knob-val" id="val-peq-${idx}-freq">${band.freq}Hz</div>
+                    <input type="range" id="peq-${idx}-freq" min="20" max="20000" step="1" value="${band.freq}" data-default="${band.freq}" style="display:none;">
+                </div>
+                <div class="peq-knob-group">
+                    <div class="peq-knob-group-label">Gain</div>
+                    <div class="knob" id="knob-peq-${idx}-gain" data-id="peq-${idx}-gain" style="width:26px;height:26px;"><div class="knob-pointer"></div></div>
+                    <div class="peq-knob-val" id="val-peq-${idx}-gain">0.0dB</div>
+                    <input type="range" id="peq-${idx}-gain" min="-15" max="15" step="0.5" value="0" data-default="0" style="display:none;">
+                </div>
+                <div class="peq-knob-group">
+                    <div class="peq-knob-group-label">Q</div>
+                    <div class="knob" id="knob-peq-${idx}-q" data-id="peq-${idx}-q" style="width:26px;height:26px;"><div class="knob-pointer"></div></div>
+                    <div class="peq-knob-val" id="val-peq-${idx}-q">${band.q.toFixed(2)}</div>
+                    <input type="range" id="peq-${idx}-q" min="0.1" max="10" step="0.1" value="${band.q}" data-default="${band.q}" style="display:none;">
+                </div>
+            </div>
+        `;
+        peqHolder.appendChild(bandEl);
+
+        const freqEl = bandEl.querySelector(`#peq-${idx}-freq`);
+        const gainEl = bandEl.querySelector(`#peq-${idx}-gain`);
+        const qEl = bandEl.querySelector(`#peq-${idx}-q`);
+        const typeEl = bandEl.querySelector(`#peq-${idx}-type`);
+
+        setTimeout(() => {
+            freqEl.oninput = function(e) {
+                const val = parseFloat(e.target.value);
+                if (peqFilters[idx]) peqFilters[idx].frequency.value = val;
+                document.getElementById(`val-peq-${idx}-freq`).innerText = (val >= 1000 ? (val/1000).toFixed(2) + 'k' : val) + 'Hz';
+            };
+            gainEl.oninput = function(e) {
+                const val = parseFloat(e.target.value);
+                if (peqFilters[idx]) peqFilters[idx].gain.value = val;
+                document.getElementById(`val-peq-${idx}-gain`).innerText = (val > 0 ? '+' : '') + val.toFixed(1) + 'dB';
+            };
+            qEl.oninput = function(e) {
+                const val = parseFloat(e.target.value);
+                if (peqFilters[idx]) peqFilters[idx].Q.value = val;
+                document.getElementById(`val-peq-${idx}-q`).innerText = val.toFixed(2);
+            };
+        }, 50);
+
+        typeEl.onchange = function(e) {
+            if (peqFilters[idx]) peqFilters[idx].type = e.target.value;
+            const isShelfOrPass = ['lowshelf','highshelf','lowpass','highpass'].includes(e.target.value);
+            qEl.closest('.peq-knob-group').style.opacity = isShelfOrPass && e.target.value !== 'lowpass' && e.target.value !== 'highpass' ? 0.4 : 1;
+        };
+    });
+
+    document.getElementById('peq-preset-select').onchange = function(e) {
+        const type = e.target.value;
+        if (!type) return;
+
+        // Urutan gain sesuai 6 band tetap: [60Hz LowShelf, 250Hz, 800Hz, 2.5kHz, 6kHz, 12kHz HighShelf]
+        let targetGains = [0, 0, 0, 0, 0, 0];
+
+        if (type === 'flat') {
+            targetGains = [0, 0, 0, 0, 0, 0];
+        } else if (type === 'horeg') {
+            // Sub-bass sangat menonjol, low-mid ditekan, treble diangkat (karakter "horeg")
+            targetGains = [7.0, -2.0, -1.0, 3.0, 5.0, 6.0];
+        } else if (type === 'hajatan') {
+            // Bass hangat untuk dangdut, presence vokal terangkat, tidak seekstrem horeg
+            targetGains = [4.0, -1.5, 0.0, 2.0, 3.0, 3.0];
+        } else if (type === 'ceksound') {
+            // Bass secukupnya, low-mid dikurangi biar tidak boomy, presence & treble jernih
+            targetGains = [3.0, -2.0, -1.0, 3.0, 4.0, 3.0];
+        } else if (type === 'vocal') {
+            // Bass & boom dipotong, band kejelasan bicara (2.5kHz) diangkat, treble atas ditekan untuk kurangi feedback/desis
+            targetGains = [-4.0, -2.0, 1.0, 3.0, -1.0, -3.0];
+        }
+
+        peqBandConfig.forEach((band, idx) => {
+            const gainEl = document.getElementById(`peq-${idx}-gain`);
+            if (gainEl) {
+                gainEl.value = targetGains[idx];
+                gainEl.dispatchEvent(new Event('input'));
+                syncAllKnobs();
+            }
+        });
+    };
+
     document.getElementById('eq-preset-select').onchange = function(e) {
         const type = e.target.value;
         if (!type) return;
@@ -2771,6 +2942,7 @@ html, body { overflow-x: hidden; }
         setBtn('sw-dsp', states.dsp, `DSP ${states.dsp ? 'ON' : 'OFF'}`);
         setBtn('sw-dlms', states.dlms, `DLMS ${states.dlms ? 'ON' : 'OFF'}`);
         setBtn('sw-eq31', states.eq31, `EQ 31 ${states.eq31 ? 'ON' : 'OFF'}`, ['eq31-active']);
+        setBtn('sw-peq', states.peq, `PEQ ${states.peq ? 'ON' : 'OFF'}`, ['eq31-active']);
         setBtn('sw-feedback', states.feedback, states.feedback ? 'FB NOTCH ON' : 'FB NOTCH OFF', ['fb-active']);
         setBtn('sw-autofb', states.autoFeedback, states.autoFeedback ? 'AUTO FEEDBACK ON' : 'AUTO FEEDBACK OFF', ['auto-fb-active']);
         setBtn('sw-dynamic-eq', states.dynamicEq, `DYNAMIC EQ ${states.dynamicEq ? 'ON' : 'OFF'}`, ['dyn-active']);
@@ -2826,6 +2998,8 @@ html, body { overflow-x: hidden; }
         if(dspPanel) dspPanel.classList.toggle('disabled-module', !states.dsp);
         const eqHolder=document.getElementById('eq31-sliders-holder');
         if(eqHolder) eqHolder.classList.toggle('disabled-module', !states.eq31);
+        const peqHolderEl=document.getElementById('peq-bands-holder');
+        if(peqHolderEl) peqHolderEl.classList.toggle('disabled-module', !states.peq);
         const legend=document.getElementById('graph-legend');
         if(legend) legend.style.display=states.graph?'flex':'none';
         updateActiveModulesUI();
@@ -2938,6 +3112,11 @@ html, body { overflow-x: hidden; }
         if(dlmsBypassGain) dlmsBypassGain.gain.setTargetAtTime(states.dlms ? 0 : 1, t, rampTime);
 
         document.getElementById('eq31-sliders-holder').classList.toggle('disabled-module', !states.eq31);
+
+        if(peqOutNode) peqOutNode.gain.setTargetAtTime(states.peq ? 1 : 0, t, rampTime);
+        if(peqBypassGain) peqBypassGain.gain.setTargetAtTime(states.peq ? 0 : 1, t, rampTime);
+        const peqHolderEl2 = document.getElementById('peq-bands-holder');
+        if(peqHolderEl2) peqHolderEl2.classList.toggle('disabled-module', !states.peq);
         
         if (feedbackNotch) feedbackNotch.Q.value = !states.feedback ? 0.001 : 8.0;
 
@@ -3028,6 +3207,7 @@ html, body { overflow-x: hidden; }
     document.getElementById('sw-dsp').onclick = () => toggleModule('dsp', 'sw-dsp');
     document.getElementById('sw-dlms').onclick = () => toggleModule('dlms', 'sw-dlms');
     document.getElementById('sw-eq31').onclick = () => toggleModule('eq31', 'sw-eq31');
+    document.getElementById('sw-peq').onclick = () => toggleModule('peq', 'sw-peq');
     document.getElementById('sw-nyesss').onclick = () => toggleModule('nyesss', 'sw-nyesss');
     document.getElementById('sw-loop').onclick = () => toggleModule('loop', 'sw-loop');
     document.getElementById('sw-graph').onclick = () => toggleModule('graph', 'sw-graph');
@@ -3565,6 +3745,7 @@ html, body { overflow-x: hidden; }
                 if (showHigh && !dlmsStates.highMute) renderFilterCurve([highHPF, highLPF], '#f472b6', 2.5);
             }
             if (states.eq31 && eq31Filters.length > 0) renderFilterCurve(eq31Filters, '#cba6f7', 2.0);
+            if (states.peq && peqFilters.length > 0) renderFilterCurve(peqFilters, '#89dceb', 2.2);
             if (states.nyesss && nyesssFilter) renderFilterCurve([nyesssFilter], '#f5c2e7', 2.0);
             if (states.feedback && feedbackNotch) renderFilterCurve([feedbackNotch], '#fab387', 2.0);
             if (states.dynamicEq && dynamicEqFilter) renderFilterCurve([dynamicEqFilter], '#89dceb', 2.0);
